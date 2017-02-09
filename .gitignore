@@ -1,0 +1,16 @@
+# Unreal Engine
+ArchivedBuilds/
+Binaries/
+FileOpenOrder/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Visual Studio
+*.sln
+*.VC.db
+*.VC.opendb
+.vs/
+
+# Directive Games
+Plugins/NoRedist/

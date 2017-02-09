@@ -1,0 +1,38 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.14",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "DriftUe4Plugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	],
+  "Plugins": [
+    {
+      "Name": "Drift",
+      "Enabled": true
+    },
+    {
+      "Name": "OnlineSubsystemGooglePlay",
+      "Enabled": false
+    },
+    {
+      "Name": "OnlineSubsystemIOS",
+      "Enabled": false
+    },
+    {
+      "Name": "OnlineSubsystemOculus",
+      "Enabled": true
+    },
+    {
+      "Name": "OnlineSubsystemSteam",
+      "Enabled": true
+    }
+  ]
+}
