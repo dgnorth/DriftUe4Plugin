@@ -36,10 +36,3 @@ private:
     
     int32 cacheVersion;
 };
-
-
-class FileHttpCacheFactory : public IHttpCacheFactory
-{
-public:
-    TSharedPtr<IHttpCache> Create() override;
-};

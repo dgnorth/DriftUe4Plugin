@@ -4,6 +4,7 @@
 
 #include "FileHttpCache.h"
 #include "HttpRequest.h"
+#include "FileHttpCacheFactory.h"
 #include "CachedHttpResponse.h"
 #include "JsonArchive.h"
 #include "Details/DateHelper.h"

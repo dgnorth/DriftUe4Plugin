@@ -5,14 +5,14 @@
 #include "DriftProvider.h"
 #include "DriftBase.h"
 
-#include "FileHttpCache.h"
+#include "FileHttpCacheFactory.h"
 
 
 const FName DefaultInstanceName = TEXT("DefaultInstance");
 
 
 FDriftProvider::FDriftProvider()
-: cache{ MakeShareable(new FileHttpCache()) }
+: cache{ FileHttpCacheFactory().Create() }
 {
 }
 
