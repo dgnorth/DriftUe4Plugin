@@ -408,10 +408,10 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
         auto index_received = context.received;
         TSharedPtr<StaticDataSync> sync = MakeShareable(new StaticDataSync);
 
-        auto loader = [this, commit, pin, index_sent, index_received, sync](const FString& url, const FString& name, const FString& cdn_name)
+        auto loader = [this, commit, pin, index_sent, index_received, sync](const FString& data_url, const FString& name, const FString& cdn_name)
         {
-            auto request = GetRootRequestManager()->Get(url + name);
-            request->OnRequestProgress().BindLambda([this, name, sync](FHttpRequestPtr req, int32 bytesWritten, int32 bytesRead)
+            auto data_request = GetRootRequestManager()->Get(data_url + name);
+            data_request->OnRequestProgress().BindLambda([this, name, sync](FHttpRequestPtr req, int32 bytesWritten, int32 bytesRead)
             {
                 if (!sync->succeeded)
                 {
@@ -426,7 +426,7 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                     }
                 }
             });
-            request->OnResponse.BindLambda([this, name, commit, pin, cdn_name, index_sent, index_received, sync](ResponseContext& context, JsonDocument& doc)
+            data_request->OnResponse.BindLambda([this, name, commit, pin, cdn_name, index_sent, index_received, sync](ResponseContext& data_context, JsonDocument& data_doc)
             {
                 DRIFT_LOG(Base, Log, TEXT("Download of static data file: '%s' done"), *name);
 
@@ -434,7 +434,7 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                 if (!sync->succeeded)
                 {
                     sync->succeeded = true;
-                    auto data = context.response->GetContentAsString();
+                    auto data = data_context.response->GetContentAsString();
                     onStaticDataLoaded.Broadcast(true, data);
                 }
 
@@ -442,20 +442,20 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                 event->Add(TEXT("filename"), *name);
                 event->Add(TEXT("pin"), *pin);
                 event->Add(TEXT("commit"), *commit);
-                event->Add(TEXT("bytes"), context.response->GetContentLength());
+                event->Add(TEXT("bytes"), data_context.response->GetContentLength());
                 event->Add(TEXT("cdn"), *cdn_name);
                 event->Add(TEXT("index_request_time"), (index_received - index_sent).GetTotalSeconds());
-                event->Add(TEXT("data_request_time"), (context.received - context.sent).GetTotalSeconds());
-                event->Add(TEXT("total_time"), (context.received - index_sent).GetTotalSeconds());
+                event->Add(TEXT("data_request_time"), (data_context.received - data_context.sent).GetTotalSeconds());
+                event->Add(TEXT("total_time"), (data_context.received - index_sent).GetTotalSeconds());
                 AddAnalyticsEvent(MoveTemp(event));
             });
-            request->OnError.BindLambda([this, name, commit, pin, cdn_name, sync](ResponseContext& context)
+            data_request->OnError.BindLambda([this, name, commit, pin, cdn_name, sync](ResponseContext& data_context)
             {
                 sync->remaining -= 1;
                 if (!sync->succeeded && sync->remaining <= 0)
                 {
                     onStaticDataLoaded.Broadcast(false, TEXT(""));
-                    context.errorHandled = true;
+                    data_context.errorHandled = true;
                 }
 
                 auto event = MakeEvent(TEXT("drift.static_data_download_failed"));
@@ -463,10 +463,10 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                 event->Add(TEXT("pin"), *pin);
                 event->Add(TEXT("commit"), *commit);
                 event->Add(TEXT("cdn"), *cdn_name);
-                event->Add(TEXT("error"), context.error);
+                event->Add(TEXT("error"), data_context.error);
                 AddAnalyticsEvent(MoveTemp(event));
             });
-            request->Dispatch();
+            data_request->Dispatch();
         };
 
         sync->remaining = FMath::Max(static_data.static_data_urls[0].cdn_list.Num(), 1);
@@ -1400,15 +1400,15 @@ void FDriftBase::GetLeaderboardImpl(const FString& counter_name, const TWeakPtr<
 
         DRIFT_LOG(Base, Verbose, TEXT("Got %d entries for leaderboard %s"), entries.Num(), *canonical_name);
         
-        auto leaderboardPtr = leaderboard.Pin();
-        if (leaderboardPtr.IsValid())
+        auto leaderboardPin = leaderboard.Pin();
+        if (leaderboardPin.IsValid())
         {
             for (const auto& entry : entries)
             {
-                leaderboardPtr->rows.Add(FDriftLeaderboardEntry{ entry.player_name, entry.total, entry.position });
+                leaderboardPin->rows.Add(FDriftLeaderboardEntry{ entry.player_name, entry.total, entry.position });
             }
 
-            leaderboardPtr->state = ELeaderboardState::Ready;
+            leaderboardPin->state = ELeaderboardState::Ready;
         }
         delegate.ExecuteIfBound(true, canonical_name);
 
@@ -1663,9 +1663,9 @@ void FDriftBase::InitAuthentication(const FString& credentialType)
         authProvider = MakeShareable(deviceAuthProviderFactory->GetAuthProvider().Release());
     }
 
-    authProvider->InitCredentials([this](bool success)
+    authProvider->InitCredentials([this](bool credentialSuccess)
     {
-        if (success)
+        if (credentialSuccess)
         {
             AuthenticatePlayer(authProvider.Get());
             authProvider->GetFriends([this](bool success, const TArray<TSharedRef<FOnlineFriend>>& friends)
@@ -2118,12 +2118,12 @@ void FDriftBase::InitServerInfo(const FString& server_url)
     auto request = GetGameRequestManager()->Put(cli.server_url, payload);
     request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
     {
-        auto request = GetGameRequestManager()->Get(cli.server_url);
-        request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
+        auto server_request = GetGameRequestManager()->Get(cli.server_url);
+        server_request->OnResponse.BindLambda([this](ResponseContext& server_context, JsonDocument& server_doc)
         {
-            if (!JsonArchive::LoadObject(doc, drift_server))
+            if (!JsonArchive::LoadObject(server_doc, drift_server))
             {
-                context.error = L"Failed to parse drift server endpoint response.";
+                server_context.error = L"Failed to parse drift server endpoint response.";
                 return;
             }
             hearbeatUrl = drift_server.heartbeat_url;
@@ -2132,7 +2132,7 @@ void FDriftBase::InitServerInfo(const FString& server_url)
             onServerRegistered.Broadcast(true);
             UpdateServer(TEXT("ready"), TEXT(""), FDriftServerStatusUpdatedDelegate{});
         });
-        request->Dispatch();
+        server_request->Dispatch();
     });
     request->OnError.BindLambda([this](ResponseContext& context)
     {
@@ -2285,20 +2285,20 @@ void FDriftBase::AddMatch(const FString& map_name, const FString& game_mode, int
 
         DRIFT_LOG(Base, VeryVerbose, TEXT("%s"), *JsonArchive::ToString(doc));
         
-        auto request = GetGameRequestManager()->Get(match.url);
-        request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
+        auto match_request = GetGameRequestManager()->Get(match.url);
+        match_request->OnResponse.BindLambda([this](ResponseContext& match_context, JsonDocument& match_doc)
         {
-            if (!JsonArchive::LoadObject(doc, match_info))
+            if (!JsonArchive::LoadObject(match_doc, match_info))
             {
-                context.error = L"Failed to parse match info response.";
+                match_context.error = L"Failed to parse match info response.";
                 return;
             }
 
-            DRIFT_LOG(Base, VeryVerbose, TEXT("%s"), *JsonArchive::ToString(doc));
+            DRIFT_LOG(Base, VeryVerbose, TEXT("%s"), *JsonArchive::ToString(match_doc));
 
             onMatchAdded.Broadcast(true);
         });
-        request->Dispatch();
+        match_request->Dispatch();
     });
     request->OnError.BindLambda([this](ResponseContext& context)
     {
