@@ -17,11 +17,6 @@
 			"LoadingPhase": "Default"
 		},
 		{
-			"Name": "DriftAnalytics",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		},
-		{
 			"Name": "DriftEditor",
 			"Type": "Developer",
 			"LoadingPhase": "Default"
