@@ -7,6 +7,8 @@
 
 #include "Core.h"
 #include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+
 
 RAPIDJSON_API DECLARE_LOG_CATEGORY_EXTERN(JsonUtilsLog, Log, All);
 
