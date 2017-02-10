@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "CoreUObject.h"
+
 #include "DriftAPI.generated.h"
 
 
