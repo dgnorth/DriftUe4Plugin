@@ -408,10 +408,10 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
         auto index_received = context.received;
         TSharedPtr<StaticDataSync> sync = MakeShareable(new StaticDataSync);
 
-        auto loader = [this, commit, pin, index_sent, index_received, sync](const FString& data_url, const FString& name, const FString& cdn_name)
+        auto loader = [this, commit, pin, index_sent, index_received, sync](const FString& data_url, const FString& data_name, const FString& cdn_name)
         {
-            auto data_request = GetRootRequestManager()->Get(data_url + name);
-            data_request->OnRequestProgress().BindLambda([this, name, sync](FHttpRequestPtr req, int32 bytesWritten, int32 bytesRead)
+            auto data_request = GetRootRequestManager()->Get(data_url + data_name);
+            data_request->OnRequestProgress().BindLambda([this, data_name, sync](FHttpRequestPtr req, int32 bytesWritten, int32 bytesRead)
             {
                 if (!sync->succeeded)
                 {
@@ -420,15 +420,15 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                     {
                         sync->bytesRead = bytesRead;
 
-                        DRIFT_LOG(Base, Verbose, TEXT("Downloading static data file from: '%s' %d bytes"), *name, bytesRead);
+                        DRIFT_LOG(Base, Verbose, TEXT("Downloading static data file from: '%s' %d bytes"), *data_name, bytesRead);
 
-                        onStaticDataProgress.Broadcast(name, bytesRead);
+                        onStaticDataProgress.Broadcast(data_name, bytesRead);
                     }
                 }
             });
-            data_request->OnResponse.BindLambda([this, name, commit, pin, cdn_name, index_sent, index_received, sync](ResponseContext& data_context, JsonDocument& data_doc)
+            data_request->OnResponse.BindLambda([this, data_name, commit, pin, cdn_name, index_sent, index_received, sync](ResponseContext& data_context, JsonDocument& data_doc)
             {
-                DRIFT_LOG(Base, Log, TEXT("Download of static data file: '%s' done"), *name);
+                DRIFT_LOG(Base, Log, TEXT("Download of static data file: '%s' done"), *data_name);
 
                 sync->remaining -= 1;
                 if (!sync->succeeded)
@@ -439,7 +439,7 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                 }
 
                 auto event = MakeEvent(TEXT("drift.static_data_downloaded"));
-                event->Add(TEXT("filename"), *name);
+                event->Add(TEXT("filename"), *data_name);
                 event->Add(TEXT("pin"), *pin);
                 event->Add(TEXT("commit"), *commit);
                 event->Add(TEXT("bytes"), data_context.response->GetContentLength());
@@ -449,7 +449,7 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                 event->Add(TEXT("total_time"), (data_context.received - index_sent).GetTotalSeconds());
                 AddAnalyticsEvent(MoveTemp(event));
             });
-            data_request->OnError.BindLambda([this, name, commit, pin, cdn_name, sync](ResponseContext& data_context)
+            data_request->OnError.BindLambda([this, data_name, commit, pin, cdn_name, sync](ResponseContext& data_context)
             {
                 sync->remaining -= 1;
                 if (!sync->succeeded && sync->remaining <= 0)
@@ -459,7 +459,7 @@ void FDriftBase::LoadStaticData(const FString& name, const FString& ref)
                 }
 
                 auto event = MakeEvent(TEXT("drift.static_data_download_failed"));
-                event->Add(TEXT("filename"), *name);
+                event->Add(TEXT("filename"), *data_name);
                 event->Add(TEXT("pin"), *pin);
                 event->Add(TEXT("commit"), *commit);
                 event->Add(TEXT("cdn"), *cdn_name);

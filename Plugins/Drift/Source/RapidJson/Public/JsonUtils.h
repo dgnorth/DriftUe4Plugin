@@ -2,10 +2,11 @@
 
 #pragma once
 
-#include "Core.h"
 #include "JsonArchive.h"
 #include "IHttpRequest.h"
 
+#include "Core.h"
+#include "Interfaces/IHttpRequest.h"
 
 RAPIDJSON_API DECLARE_LOG_CATEGORY_EXTERN(JsonUtilsLog, Log, All);
 
