@@ -530,7 +530,8 @@ RAPIDJSON_NAMESPACE_END
 #ifndef RAPIDJSON_HAS_CXX11_RVALUE_REFS
 #if defined(__clang__)
 #if __has_feature(cxx_rvalue_references) && \
-    (defined(_LIBCPP_VERSION) || defined(__GLIBCXX__) && __GLIBCXX__ >= 20080306)
+    ((defined(_LIBCPP_VERSION) || defined(__GLIBCXX__) && __GLIBCXX__ >= 20080306) || \
+    defined(__ORBIS__))
 #define RAPIDJSON_HAS_CXX11_RVALUE_REFS 1
 #else
 #define RAPIDJSON_HAS_CXX11_RVALUE_REFS 0
