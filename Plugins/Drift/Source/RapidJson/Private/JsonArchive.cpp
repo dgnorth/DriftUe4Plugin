@@ -251,9 +251,15 @@ bool JsonArchive::SerializeObject<FDateTime>(JsonValue& jValue, FDateTime& cValu
     {
         if (jValue.IsString())
         {
-            // FDateTime refuses to accept more than 3 digits of sub-second resolution
             FString temp = jValue.GetString();
-            if (temp.Right(1) == L"Z" || (temp.Contains(TEXT("T")) && temp.Right(1).IsNumeric()))
+            // Date only
+            if (temp.Right(1) == L"Z" && !temp.Contains(TEXT("T")))
+            {
+                temp = temp.LeftChop(1);
+                success = FDateTime::ParseIso8601(*temp, cValue);
+            }
+            // FDateTime refuses to accept more than 3 digits of sub-second resolution
+            else if (temp.Right(1) == L"Z" || (temp.Contains(TEXT("T")) && temp.Right(1).IsNumeric()))
             {
                 int32 millisecondPeriod;
                 if (temp.FindLastChar(L'.', millisecondPeriod))
