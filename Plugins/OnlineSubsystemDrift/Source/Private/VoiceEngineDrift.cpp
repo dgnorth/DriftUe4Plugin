@@ -177,7 +177,7 @@ uint32 FVoiceEngineDrift::StartLocalVoiceProcessing(uint32 LocalUserNum)
 	}
 	else
 	{
-		UE_LOG(LogVoiceEncode, Error, TEXT("StartLocalVoiceProcessing(): Device is currently owned by another user"));
+		UE_CLOG(OwningUserIndex != -1, LogVoiceEncode, Error, TEXT("StartLocalVoiceProcessing(): Device is currently owned by another user"));
 	}
 
 	return Return;
@@ -204,7 +204,7 @@ uint32 FVoiceEngineDrift::StopLocalVoiceProcessing(uint32 LocalUserNum)
 	}
 	else
 	{
-		UE_LOG(LogVoiceEncode, Error, TEXT("StopLocalVoiceProcessing: Ignoring stop request for non-owning user"));
+		UE_CLOG(OwningUserIndex != -1, LogVoiceEncode, Error, TEXT("StopLocalVoiceProcessing: Ignoring stop request for non-owning user"));
 	}
 
 	return Return;
