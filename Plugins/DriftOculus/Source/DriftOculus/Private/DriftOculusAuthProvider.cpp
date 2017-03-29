@@ -8,6 +8,7 @@
 #include "OnlineSubsystemOculus.h"
 
 #include "OVR_Platform.h"
+#include "Misc/SecureHash.h"
 
 
 #ifndef OCULUS_SUBSYSTEM
