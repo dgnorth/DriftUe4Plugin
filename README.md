@@ -10,6 +10,10 @@ Copy the Plugins folder to your games project, compile the editor, and enable th
 You'll need to enable at least Drift, and DriftEditor. For Steam and Oculus authentication support, you
 also need to enable DriftSteam, and DriftOculus.
 
+Copy the ErrorReporter module to your Source folder. This module is not part of the plugin as it's also
+useful on its own, and must expose headers, and some default implementations. Prefereably this would be
+part of the engine, but it's not.
+
 Open the Project Settings pane and go to the Pugins/Drift section. Enter the relevant data there.
 
 Somehwere during startup, you'll want to authenticate the player. In the editor and by default it'll
