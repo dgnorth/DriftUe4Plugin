@@ -32,14 +32,18 @@ public class RapidJson : ModuleRules
                 "HTTP",
             }
             );
-            
-        
+
+
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
                 // ... add private dependencies that you statically link with here ...    
             }
             );
-        
+
+        if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.PS4))
+        {
+            Definitions.Add("RAPIDJSON_HAS_CXX11_RVALUE_REFS=1");
+        }
     }
 }
