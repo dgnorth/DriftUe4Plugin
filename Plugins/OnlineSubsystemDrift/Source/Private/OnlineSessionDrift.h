@@ -3,6 +3,7 @@
 #pragma once
 
 #include "OnlineSessionInterface.h"
+#include "OnlineSessionSettings.h"
 #include "OnlineSubsystemDriftTypes.h"
 #include "OnlineSubsystemDriftPackage.h"
 
