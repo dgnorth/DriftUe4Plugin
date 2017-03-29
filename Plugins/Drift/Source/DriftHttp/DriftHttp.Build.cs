@@ -41,6 +41,8 @@ public class DriftHttp : ModuleRules
                 "Engine",
                 "HTTP",
                 "RapidJson",
+                "ErrorReporter",
+                "Json",
             }
             );
     }

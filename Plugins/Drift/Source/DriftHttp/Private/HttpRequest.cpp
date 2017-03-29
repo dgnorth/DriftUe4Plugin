@@ -6,6 +6,9 @@
 #include "HttpRequest.h"
 #include "HttpCache.h"
 #include "JsonArchive.h"
+#include "JsonUtils.h"
+#include "ErrorResponse.h"
+#include "IErrorReporter.h"
 
 
 #define LOCTEXT_NAMESPACE "Drift"
@@ -80,7 +83,9 @@ void HttpRequest::InternalRequestCompleted(FHttpRequestPtr request, FHttpRespons
                 doc.Parse(*response->GetContentAsString());
                 if (doc.HasParseError())
                 {
-                    context.error = FString::Printf(L"JSON response is broken at position %i. RapidJson error: %i", (int32)doc.GetErrorOffset(), (int32)doc.GetParseError());
+                    context.error = FString::Printf(L"JSON response is broken at position %i. RapidJson error: %i",
+                        (int32)doc.GetErrorOffset(),
+                        (int32)doc.GetParseError());
                 }
                 else if (expectedResponseCode_ != -1 && context.responseCode != expectedResponseCode_)
                 {
@@ -92,6 +97,7 @@ void HttpRequest::InternalRequestCompleted(FHttpRequestPtr request, FHttpRespons
                 }
                 else
                 {
+                    // All default validation passed, process response
                     if (cache_.IsValid() && request->GetVerb() == TEXT("GET"))
                     {
                         cache_->CacheResponse(context);
@@ -110,8 +116,7 @@ void HttpRequest::InternalRequestCompleted(FHttpRequestPtr request, FHttpRespons
                  * Otherwise, pass it through the error handling chain.
                  */
                 BroadcastError(context);
-
-                UE_LOG(LogHttpClient, Error, TEXT("'%s' FAILED in %.3f seconds:\n%s\n%s"), *GetAsDebugString(), (FDateTime::UtcNow() - sent_).GetTotalSeconds(), *GetDebugText(response), *context.error);
+                LogError(context);
             }
             else
             {
@@ -120,8 +125,6 @@ void HttpRequest::InternalRequestCompleted(FHttpRequestPtr request, FHttpRespons
         }
         else
         {
-            UE_LOG(LogHttpClient, Error, TEXT("'%s' FAILED:\n%s"), *GetAsDebugString(), *GetDebugText(response));
-            
             if (retriesLeft_ > 0 && shouldRetryDelegate_.IsBound() && shouldRetryDelegate_.Execute(request, response))
             {
                 Retry();
@@ -133,6 +136,7 @@ void HttpRequest::InternalRequestCompleted(FHttpRequestPtr request, FHttpRespons
                  * The server returned a non-success response code. Pass it through the error handling chain.
                  */
                 BroadcastError(context);
+                LogError(context);
             }
         }
     }
@@ -142,8 +146,7 @@ void HttpRequest::InternalRequestCompleted(FHttpRequestPtr request, FHttpRespons
          * The request failed to send, or return. Pass it through the error handling chain.
          */
         BroadcastError(context);
-
-        UE_LOG(LogHttpClient, Error, TEXT("'%s' FAILED in %.3f seconds:\n%s"), *GetAsDebugString(), (FDateTime::UtcNow() - sent_).GetTotalSeconds(), *context.error);
+        LogError(context);
     }
 
     OnCompleted.ExecuteIfBound(SharedThis(this));
@@ -167,6 +170,94 @@ void HttpRequest::BroadcastError(ResponseContext &context)
             OnUnhandledError.ExecuteIfBound(context);
         }
     }
+}
+
+
+void HttpRequest::LogError(ResponseContext& context)
+{
+    FString errorMessage;
+
+    auto error = MakeShared<FJsonObject>();
+    error->SetNumberField(L"elapsed", (FDateTime::UtcNow() - sent_).GetTotalSeconds());
+    error->SetBoolField(L"error_handled", context.errorHandled);
+    error->SetNumberField(L"status_code", context.responseCode);
+    if (!context.message.IsEmpty())
+    {
+        error->SetStringField(L"message", context.message);
+    }
+    if (!context.error.IsEmpty())
+    {
+        error->SetStringField(L"error", context.error);
+    }
+
+    auto requestData = MakeShared<FJsonObject>();
+    requestData->SetStringField(L"method", wrappedRequest_->GetVerb());
+    requestData->SetStringField(L"url", wrappedRequest_->GetURL());
+
+    auto allHeaders = MakeShared<FJsonObject>();
+
+    auto requestHeaders = context.request->GetAllHeaders();
+    if (requestHeaders.Num() > 0)
+    {
+        for (const auto& header : requestHeaders)
+        {
+            FString key, value;
+            header.Split(L": ", &key, &value);
+            allHeaders->SetStringField(key, value);
+        }
+    }
+
+    if (context.response.IsValid())
+    {
+        GenericRequestErrorResponse response;
+        if (JsonUtils::ParseResponse(context.response, response))
+        {
+            auto code = response.GetErrorCode();
+            if (!code.IsEmpty())
+            {
+                requestData->SetStringField(L"code", code);
+                errorMessage += code;
+            }
+            auto reason = response.GetErrorReason();
+            if (!reason.IsEmpty() && reason != L"undefined")
+            {
+                requestData->SetStringField(L"reason", reason);
+                errorMessage += errorMessage.IsEmpty() ? reason : FString{ L" : " } +reason;
+            }
+            auto description = response.GetErrorDescription();
+            if (!description.IsEmpty())
+            {
+                requestData->SetStringField(L"description", description);
+            }
+        }
+        requestData->SetStringField(L"data", context.response->GetContentAsString());
+        auto responseHeaders = context.response->GetAllHeaders();
+        if (responseHeaders.Num() > 0)
+        {
+            for (const auto& header : responseHeaders)
+            {
+                FString key, value;
+                header.Split(L": ", &key, &value);
+                allHeaders->SetStringField(key, value);
+            }
+        }
+    }
+    else
+    {
+        if (context.request->GetStatus() == EHttpRequestStatus::Failed_ConnectionError)
+        {
+            errorMessage = L"HTTP request timeout";
+        }
+    }
+
+    if (allHeaders->Values.Num() > 0)
+    {
+        requestData->SetObjectField("headers", allHeaders);
+    }
+
+    error->SetObjectField("request", requestData);
+    IErrorReporter::Get()->AddError(LogHttpClient.GetCategoryName(),
+        errorMessage.IsEmpty() ? L"HTTP request failed" : *errorMessage, error);
 }
 
 
@@ -207,8 +298,7 @@ bool HttpRequest::Dispatch(bool forceQueued)
                      * Otherwise, pass it through the error handling chain.
                      */
                     BroadcastError(context);
-                    
-                    UE_LOG(LogHttpClient, Error, TEXT("'%s' FAILED from CACHE in %.3f seconds:\n%s\n%s"), *GetAsDebugString(), (FDateTime::UtcNow() - sent_).GetTotalSeconds(), *GetDebugText(cachedResponse), *context.error);
+                    LogError(context);
                 }
                 else
                 {
@@ -249,7 +339,7 @@ FString HttpRequest::GetAsDebugString() const
 #if !UE_BUILD_SHIPPING
     return FString::Printf(TEXT("Http Request(%s): %s - %s"), *guid_.ToString(), *wrappedRequest_->GetVerb(), *wrappedRequest_->GetURL());
 #else
-    return FString();
+    return FString::Printf(TEXT("Http Request: %s - %s"), *wrappedRequest_->GetVerb(), *wrappedRequest_->GetURL());
 #endif
 }
 

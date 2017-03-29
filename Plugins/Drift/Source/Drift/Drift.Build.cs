@@ -50,6 +50,8 @@ public class Drift : ModuleRules
                 "OnlineSubsystemUtils",
                 "DriftHttp",
                 "RapidJson",
+                "ErrorReporter",
+                "Json",
             }
             );
         

@@ -150,6 +150,7 @@ private:
     void BindActualRequest(TSharedRef<IHttpRequest> request);
     void InternalRequestCompleted(FHttpRequestPtr request, FHttpResponsePtr response, bool bWasSuccessful);
     void BroadcastError(ResponseContext& context);
+    void LogError(ResponseContext& context);
 
 protected:
     friend class RequestManager;
