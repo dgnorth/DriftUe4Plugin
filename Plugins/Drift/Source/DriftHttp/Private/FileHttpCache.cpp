@@ -74,7 +74,7 @@ void FileHttpCache::CacheResponse(const ResponseContext& context)
                 entry.urlHash = urlHash;
                 entry.contentHash = GetContentHash(context.response);
                 
-                if (context.response->GetContent().Num() < MAX_INLINE_CACHED_CONTENT_SIZE)
+                if (context.response->GetContentLength() < MAX_INLINE_CACHED_CONTENT_SIZE)
                 {
                     entry.payload = context.response->GetContent();
                 }
