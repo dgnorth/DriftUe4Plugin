@@ -4,6 +4,9 @@
 
 #include "WindowsSecureStorage.h"
 
+#include "Windows/AllowWindowsPlatformTypes.h"
+	#include "wtypes.h"
+#include "Windows/HideWindowsPlatformTypes.h"
 
 #if PLATFORM_WINDOWS
 
