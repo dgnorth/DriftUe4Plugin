@@ -856,7 +856,7 @@ void FDriftBase::JoinMatchQueueImpl(const FString& ref, const FString& placement
 {
     if (state_ != DriftSessionState::Connected)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to join the match queue without being connected"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to join the match queue without being connected"));
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -864,7 +864,7 @@ void FDriftBase::JoinMatchQueueImpl(const FString& ref, const FString& placement
 
     if (matchQueueState != EMatchQueueState::Idle)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to join the match queue while not idle"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to join the match queue while not idle"));
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -916,7 +916,7 @@ void FDriftBase::LeaveMatchQueue(const FDriftLeftMatchQueueDelegate& delegate)
 {
     if (state_ != DriftSessionState::Connected)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to leave the match queue without being connected"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to leave the match queue without being connected"));
         
         delegate.ExecuteIfBound(false);
         return;
@@ -924,7 +924,7 @@ void FDriftBase::LeaveMatchQueue(const FDriftLeftMatchQueueDelegate& delegate)
 
     if (matchQueue.matchqueueplayer_url.IsEmpty())
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to leave the match queue without being in one"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to leave the match queue without being in one"));
         
         delegate.ExecuteIfBound(false);
         return;
@@ -932,7 +932,7 @@ void FDriftBase::LeaveMatchQueue(const FDriftLeftMatchQueueDelegate& delegate)
     
     if (matchQueueState == EMatchQueueState::Matched)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to leave the match queue after getting matched"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to leave the match queue after getting matched"));
         
         delegate.ExecuteIfBound(false);
         return;
@@ -985,7 +985,7 @@ void FDriftBase::LeaveMatchQueue(const FDriftLeftMatchQueueDelegate& delegate)
             }
         }
 
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Failed to leave the match queue for an unknown reason"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Failed to leave the match queue for an unknown reason"));
 
         context.errorHandled = true;
         delegate.ExecuteIfBound(false);
@@ -998,7 +998,7 @@ void FDriftBase::PollMatchQueue(const FDriftPolledMatchQueueDelegate& delegate)
 {
     if (state_ != DriftSessionState::Connected)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to poll the match queue without being connected"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to poll the match queue without being connected"));
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -1006,7 +1006,7 @@ void FDriftBase::PollMatchQueue(const FDriftPolledMatchQueueDelegate& delegate)
 
     if (matchQueue.matchqueueplayer_url.IsEmpty())
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to poll the match queue without being in one"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to poll the match queue without being in one"));
 
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -1016,7 +1016,7 @@ void FDriftBase::PollMatchQueue(const FDriftPolledMatchQueueDelegate& delegate)
     {
         auto extra = MakeShared<FJsonObject>();
         extra->SetNumberField(L"state", (int32)matchQueueState);
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to poll the match queue while in an incompatible state"), extra);
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to poll the match queue while in an incompatible state"), extra);
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -1072,21 +1072,21 @@ void FDriftBase::ResetMatchQueue()
 {
     if (state_ != DriftSessionState::Connected)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to reset the match queue without being connected"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to reset the match queue without being connected"));
         
         return;
     }
     
     if (matchQueue.matchqueueplayer_url.IsEmpty())
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to reset the match queue without being in one"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to reset the match queue without being in one"));
         
         return;
     }
     
     if (matchQueueState != EMatchQueueState::Matched)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to reset the match queue without being matched"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to reset the match queue without being matched"));
         
         return;
     }
@@ -1108,7 +1108,7 @@ void FDriftBase::InvitePlayerToMatch(int32 playerID, const FDriftJoinedMatchQueu
 {
     if (state_ != DriftSessionState::Connected)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to send match challenge without being connected"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to send match challenge without being connected"));
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -1116,7 +1116,7 @@ void FDriftBase::InvitePlayerToMatch(int32 playerID, const FDriftJoinedMatchQueu
     
     if (matchQueueState != EMatchQueueState::Idle)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to send match challenge while not idle"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to send match challenge while not idle"));
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -1124,7 +1124,7 @@ void FDriftBase::InvitePlayerToMatch(int32 playerID, const FDriftJoinedMatchQueu
     
     if (playerID == myPlayer.player_id)
     {
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to challenge yourself to a match is not allowed"));
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to challenge yourself to a match is not allowed"));
         
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;
@@ -1135,7 +1135,7 @@ void FDriftBase::InvitePlayerToMatch(int32 playerID, const FDriftJoinedMatchQueu
     {
         auto extra = MakeShared<FJsonObject>();
         extra->SetNumberField(L"player_id", playerID);
-        IErrorReporter::Get()->AddError(LogDriftBase.GetCategoryName(), TEXT("Attempting to challenge player to match, but there's no information about the player"), extra);
+        IErrorReporter::Get()->AddError(L"LogDriftBase", TEXT("Attempting to challenge player to match, but there's no information about the player"), extra);
 
         delegate.ExecuteIfBound(false, FMatchQueueStatus{});
         return;

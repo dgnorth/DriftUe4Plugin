@@ -256,7 +256,7 @@ void HttpRequest::LogError(ResponseContext& context)
     }
 
     error->SetObjectField("request", requestData);
-    IErrorReporter::Get()->AddError(LogHttpClient.GetCategoryName(),
+    IErrorReporter::Get()->AddError(L"LogHttpClient",
         errorMessage.IsEmpty() ? L"HTTP request failed" : *errorMessage, error);
 }
 
