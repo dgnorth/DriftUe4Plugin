@@ -1,6 +1,7 @@
 
 #include "DriftPrivatePCH.h"
 
+#include "PlatformMisc.h"
 #include "PlatformName.h"
 
 
@@ -19,7 +20,7 @@ const TCHAR* GetPlatformName()
 #elif PLATFORM_MAC
     L"MAC";
 #elif PLATFORM_IOS
-    return FIOSPlatformMisc::GetDefaultDeviceProfileName();
+    FIOSPlatformMisc::GetDefaultDeviceProfileName();
 #elif PLATFORM_ANDROID
     L"Android";
 #elif PLATFORM_WINRT_ARM
