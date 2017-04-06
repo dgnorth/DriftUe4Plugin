@@ -578,7 +578,7 @@ public:
     /**
      * Fired when the server thinks the version of the client is invalid.
      */
-    virtual FDriftGameVersionMismatchDelegate OnGameVersionMismatch() = 0;
+    virtual FDriftGameVersionMismatchDelegate& OnGameVersionMismatch() = 0;
     /**
      * Fired when the request sent to the server is malformed,
      * not valid for the current state, or otherwise invalid.

@@ -119,7 +119,7 @@ public:
     FDriftPlayerNameSetDelegate& OnPlayerNameSet() override { return onPlayerNameSet; }
     FDriftStaticRoutesInitializedDelegate& OnStaticRoutesInitialized() override { return onStaticRoutesInitialized; }
     FDriftPlayerDisconnectedDelegate& OnPlayerDisconnected() override { return onPlayerDisconnected; }
-    FDriftGameVersionMismatchDelegate OnGameVersionMismatch() override { return onGameVersionMismatch; }
+    FDriftGameVersionMismatchDelegate& OnGameVersionMismatch() override { return onGameVersionMismatch; }
     FDriftUserErrorDelegate& OnUserError() override { return onUserError; }
     FDriftServerErrorDelegate& OnServerError() override { return onServerError; }
 
