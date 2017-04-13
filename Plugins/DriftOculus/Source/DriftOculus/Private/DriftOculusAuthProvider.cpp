@@ -34,25 +34,25 @@ void FDriftOculusAuthProvider::InitCredentials(InitCredentialsCallback callback)
     auto identityInterface = Online::GetIdentityInterface(nullptr, OCULUS_SUBSYSTEM);
     if (identityInterface.IsValid())
     {
-		const auto localUserNum = 0;
+        const auto localUserNum = 0;
 
-		if (identityInterface->GetLoginStatus(localUserNum) == ELoginStatus::LoggedIn)
-		{			
-			auto id = identityInterface->GetUniquePlayerId(localUserNum);
-			if (id.IsValid())
-			{
-				OnLoginComplete(localUserNum, true, *id.Get(), TEXT(""), callback);
-			}
-			else
-			{
-				callback(false);
-			}
-		}
-		else
-		{
-			loginCompleteDelegateHandle = identityInterface->AddOnLoginCompleteDelegate_Handle(localUserNum, FOnLoginCompleteDelegate::CreateSP(this, &FDriftOculusAuthProvider::OnLoginComplete, callback));
+        if (identityInterface->GetLoginStatus(localUserNum) == ELoginStatus::LoggedIn)
+        {            
+            auto id = identityInterface->GetUniquePlayerId(localUserNum);
+            if (id.IsValid())
+            {
+                OnLoginComplete(localUserNum, true, *id.Get(), TEXT(""), callback);
+            }
+            else
+            {
+                callback(false);
+            }
+        }
+        else
+        {
+            loginCompleteDelegateHandle = identityInterface->AddOnLoginCompleteDelegate_Handle(localUserNum, FOnLoginCompleteDelegate::CreateSP(this, &FDriftOculusAuthProvider::OnLoginComplete, callback));
             identityInterface->AutoLogin(localUserNum);
-		}
+        }
     }
     else
     {
@@ -113,7 +113,7 @@ void FDriftOculusAuthProvider::FillProviderDetails(DetailsAppender appender) con
     appender(TEXT("username"), *oculusID);
     // This is temporary until we can get the nonce from the API
     appender(TEXT("password"), *FMD5::HashAnsiString(*(oculusID + salt)));
-    appender(TEXT("oculus_id"), *oculusID);
+    appender(TEXT("user_id"), *oculusID);
     appender(TEXT("nonce"), *nonce);
 }
 
@@ -274,17 +274,17 @@ void FDriftOculusAuthProvider::TriggerCallbackIfLogonComplete(InitCredentialsCal
 
 void FDriftOculusAuthProvider::GetAvatarUrl(GetAvatarUrlCallback callback)
 {
-	if (auto oss = Online::GetSubsystem(nullptr, OCULUS_SUBSYSTEM))
-	{
-		auto ossOculus = static_cast<FOnlineSubsystemOculus*>(oss);
+    if (auto oss = Online::GetSubsystem(nullptr, OCULUS_SUBSYSTEM))
+    {
+        auto ossOculus = static_cast<FOnlineSubsystemOculus*>(oss);
         ossOculus->AddRequestDelegate(::ovr_User_GetLoggedInUser(), FOculusMessageOnCompleteDelegate::CreateSP(this, &FDriftOculusAuthProvider::OnGetAvatarUrlComplete, callback));
-	}
-	else
-	{
-		UE_LOG(LogDriftOculus, Error, TEXT("Failed to get Oculus subsystem for avatar retrieval"));
+    }
+    else
+    {
+        UE_LOG(LogDriftOculus, Error, TEXT("Failed to get Oculus subsystem for avatar retrieval"));
 
         callback(TEXT(""));
-	}	
+    }    
 }
 
 
