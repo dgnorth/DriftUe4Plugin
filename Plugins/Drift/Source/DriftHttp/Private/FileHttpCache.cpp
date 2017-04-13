@@ -11,6 +11,9 @@
 
 #include "SecureHash.h"
 
+#if PLATFORM_PS4
+#include "PS4File.h"
+#endif
 
 DEFINE_LOG_CATEGORY(LogHttpCache);
 
@@ -19,8 +22,18 @@ const int32 MAX_INLINE_CACHED_CONTENT_SIZE = 1024;
 const int32 HTTP_CACHE_INDEX_VERSION = 1;
 
 
+FString GetCachePath()
+{
+#if PLATFORM_PS4
+    return FPS4PlatformFile::GetTempDirectory();
+#else
+    return FPaths::GameSavedDir();
+#endif
+}
+
+
 FileHttpCache::FileHttpCache()
-: cacheDir{ FPaths::Combine(*FPaths::GameSavedDir(), TEXT("HttpCache")) }
+: cacheDir{ FPaths::Combine(*GetCachePath(), TEXT("HttpCache")) }
 , cacheVersion{ HTTP_CACHE_INDEX_VERSION }
 {
     UE_LOG(LogHttpCache, Log, TEXT("Initializing FileHttpCache at: %s"), *cacheDir);
