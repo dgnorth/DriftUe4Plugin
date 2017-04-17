@@ -9,6 +9,9 @@
 #if PLATFORM_ANDROID
 
 
+// TODO: There's nothing secure about this implementation
+
+
 class AndroidSecureStorage : public ISecureStorage
 {
 public:
