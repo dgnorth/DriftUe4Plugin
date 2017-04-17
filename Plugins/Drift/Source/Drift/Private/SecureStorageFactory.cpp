@@ -10,6 +10,8 @@
 #include "Windows/WindowsSecureStorage.h"
 #elif PLATFORM_LINUX
 #include "Linux/LinuxSecureStorage.h"
+#elif PLATFORM_ANDROID
+#include "Android/AndroidSecureStorage.h"
 #endif
 
 
@@ -21,6 +23,8 @@ TSharedPtr<ISecureStorage> SecureStorageFactory::GetSecureStorage(const FString&
 	return MakeShareable(new WindowsSecureStorage(productName, serviceName));
 #elif PLATFORM_LINUX
 	return MakeShareable(new LinuxSecureStorage(productName, serviceName));
+#elif PLATFORM_ANDROID
+    return MakeShareable(new AndroidSecureStorage(productName, serviceName));
 #else
 	return nullptr;
 #endif // Secure Storage

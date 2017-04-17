@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.14",
+	"EngineAssociation": "4.15",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -13,26 +13,26 @@
 			]
 		}
 	],
-  "Plugins": [
-    {
-      "Name": "Drift",
-      "Enabled": true
-    },
-    {
-      "Name": "OnlineSubsystemGooglePlay",
-      "Enabled": false
-    },
-    {
-      "Name": "OnlineSubsystemIOS",
-      "Enabled": false
-    },
-    {
-      "Name": "OnlineSubsystemOculus",
-      "Enabled": true
-    },
-    {
-      "Name": "OnlineSubsystemSteam",
-      "Enabled": true
-    }
-  ]
+	"Plugins": [
+		{
+			"Name": "Drift",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemGooglePlay",
+			"Enabled": false
+		},
+		{
+			"Name": "OnlineSubsystemIOS",
+			"Enabled": false
+		},
+		{
+			"Name": "OnlineSubsystemOculus",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
+		}
+	]
 }
