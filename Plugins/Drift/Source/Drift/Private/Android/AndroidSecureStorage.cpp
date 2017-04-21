@@ -20,7 +20,7 @@ bool AndroidSecureStorage::SaveValue(const FString& key, const FString& value, b
 {
     auto fullPath = key + TEXT(".dat");
     uint32 flags = overwrite ? 0 : FILEWRITE_NoReplaceExisting;
-    return FFileHelper::SaveStringToFile(value, *fullPath, EEncodingOptions::AutoDetect, &IFileManager::Get(), flags);
+    return FFileHelper::SaveStringToFile(value, *fullPath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), flags);
 }
 
 
