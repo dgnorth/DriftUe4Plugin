@@ -39,6 +39,7 @@ void FDriftCounterManager::AddCount(const FString& counterName, float value, boo
     UE_LOG(LogDriftCounters, Verbose, TEXT("AddCount: '%s', %.2f, absolute = %s"), *canonicalName, value, absolute ? TEXT("true") : TEXT("false"));
 
     FCounterModification modification{ 0, value, canonicalName, absolute ? TEXT("absolute") : TEXT("count"), FDateTime::UtcNow(), absolute };
+    UpdateCachedCounter(modification);
     int32 existingIndex;
     if (pendingCounters.Find(modification, existingIndex))
     {
@@ -48,7 +49,6 @@ void FDriftCounterManager::AddCount(const FString& counterName, float value, boo
     {
         pendingCounters.Add(MoveTemp(modification));
     }
-    UpdateCachedCounter(modification);
 }
 
 
