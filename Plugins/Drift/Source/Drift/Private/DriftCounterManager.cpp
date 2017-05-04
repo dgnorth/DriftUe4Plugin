@@ -210,4 +210,8 @@ void FDriftCounterManager::UpdateCachedCounter(const FCounterModification& updat
             playerCounter->total += update.value;
         }
     }
+    else
+    {
+        playerCounters.Add(FDriftPlayerCounter(-1, update.value, update.name));
+    }
 }

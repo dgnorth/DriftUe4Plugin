@@ -330,6 +330,14 @@ bool operator ==(const FDriftCounterInfo& left, const FDriftCounterInfo& right);
  */
 struct FDriftPlayerCounter
 {
+    FDriftPlayerCounter() = default;
+
+    FDriftPlayerCounter(int32 counter_id_, float total_, FString name_)
+        : counter_id{ counter_id_ }
+        , total{ total_ }
+        , name{ name_ }
+    {}
+
     int32 counter_id = -1;
     float total = -1;
     FString name;
