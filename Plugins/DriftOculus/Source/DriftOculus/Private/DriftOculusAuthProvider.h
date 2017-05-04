@@ -27,7 +27,7 @@ private:
     void GetNonceForIdentityCheck(InitCredentialsCallback callback);
 
     void OnReadFriendsListComplete(int32, bool success, const FString& listName, const FString& error, GetFriendsCallback callback);
-    void OnLoginComplete(int32 localPlayerNum, bool success, const FUniqueNetId& userID, const FString& error, InitCredentialsCallback);
+    void OnLoginComplete(int32 localPlayerNum, bool success, const FUniqueNetId& userID, const FString& error, InitCredentialsCallback callback);
     void OnGetNonceComplete(ovrMessageHandle handle, bool isError, InitCredentialsCallback callback);
     void OnValidationComplete(const FUniqueNetId& uniqueID, EUserPrivileges::Type privilege, uint32 result, InitCredentialsCallback callback);
     void OnGetAvatarUrlComplete(ovrMessageHandle handle, bool isError, GetAvatarUrlCallback callback);
