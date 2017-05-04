@@ -1752,7 +1752,7 @@ void FDriftBase::AuthenticatePlayer(IDriftAuthProvider* provider)
     {
         context.errorHandled = true;
         Reset();
-        if (context.error.IsEmpty())
+        if (context.error.IsEmpty() && context.response.IsValid())
         {
             GenericRequestErrorResponse response;
             if (JsonUtils::ParseResponse(context.response, response))
