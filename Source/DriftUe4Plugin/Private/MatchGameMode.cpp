@@ -3,6 +3,9 @@
 #include "DriftUe4Plugin.h"
 #include "MatchGameMode.h"
 
+#include "DriftAPI.h"
+#include "DriftUtils.h"
+
 #include "OnlineSubsystemUtils.h"
 
 
@@ -19,6 +22,15 @@ void AMatchGameMode::BeginPlay()
         if (sessionInterface.IsValid())
         {
             sessionInterface->StartSession(GameSessionName);
+        }
+    }
+    else
+    {
+        if (auto drift = FDriftWorldHelper(GetWorld()).GetInstance())
+        {
+            drift->LoadPlayerAvatarUrl(FDriftLoadPlayerAvatarUrlDelegate::CreateLambda([](const FString& url) {
+                UE_LOG(LogTemp, Log, L"%s", *url);
+            }));
         }
     }
 }
