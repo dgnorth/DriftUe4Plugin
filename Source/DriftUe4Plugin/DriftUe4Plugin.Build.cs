@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class DriftUe4Plugin : ModuleRules
 {
-    public DriftUe4Plugin(TargetInfo Target)
+    public DriftUe4Plugin(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 

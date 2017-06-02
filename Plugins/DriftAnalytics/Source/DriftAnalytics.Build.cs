@@ -4,8 +4,8 @@ using UnrealBuildTool;
 
 public class DriftAnalytics : ModuleRules
 {
-	public DriftAnalytics(TargetInfo Target)
-	{
+	public DriftAnalytics(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    {
 		bFasterWithoutUnity = true;
 		bEnableShadowVariableWarnings = false;
 		PCHUsage = PCHUsageMode.NoSharedPCHs;

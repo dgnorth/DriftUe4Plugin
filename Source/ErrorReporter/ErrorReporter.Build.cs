@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class ErrorReporter : ModuleRules
 {
-    public ErrorReporter(TargetInfo Target)
+    public ErrorReporter(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         PCHUsage = PCHUsageMode.NoSharedPCHs;
         PrivatePCHHeaderFile = "Private/ErrorReporterPCH.h";

@@ -5,21 +5,9 @@ using System.Collections.Generic;
 
 public class DriftUe4PluginTarget : TargetRules
 {
-    public DriftUe4PluginTarget(TargetInfo Target)
+    public DriftUe4PluginTarget(TargetInfo Target) : base(Target)
     {
         Type = TargetType.Game;
-    }
-
-    //
-    // TargetRules interface.
-    //
-
-    public override void SetupBinaries(
-        TargetInfo Target,
-        ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-        ref List<string> OutExtraModuleNames
-        )
-    {
-        OutExtraModuleNames.AddRange( new string[] { "DriftUe4Plugin" } );
+        ExtraModuleNames.Add("DriftUe4Plugin");
     }
 }

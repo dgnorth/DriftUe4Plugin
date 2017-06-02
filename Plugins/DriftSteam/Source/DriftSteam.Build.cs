@@ -3,23 +3,23 @@
 using UnrealBuildTool;
 using System.IO;
 
-public class DriftOculus : ModuleRules
+public class DriftSteam : ModuleRules
 {
-	public DriftOculus(TargetInfo Target)
-	{
+	public DriftSteam(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    {
 		bEnableShadowVariableWarnings = false;
 		PCHUsage = PCHUsageMode.NoSharedPCHs;
 
         PublicIncludePaths.AddRange(
 			new string[] {
-				"DriftOculus/Public",		
+				"DriftSteam/Public",		
 			}
 			);
 				
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"DriftOculus/Private",
+				"DriftSteam/Private",
 			}
 			);
 
@@ -34,11 +34,14 @@ public class DriftOculus : ModuleRules
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
+                "CoreUObject",
                 "Engine",
-                "Drift",
+                "HTTP",
+                "Json",
+                "JsonUtilities",
                 "OnlineSubsystem",
-                "OnlineSubsystemOculus",
-                "LibOVRPlatform",
+                "OnlineSubsystemUtils",
+                "Drift",
             }
             );
     }

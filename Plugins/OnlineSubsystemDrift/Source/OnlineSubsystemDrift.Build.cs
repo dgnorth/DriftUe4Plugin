@@ -4,8 +4,8 @@ using UnrealBuildTool;
 
 public class OnlineSubsystemDrift : ModuleRules
 {
-	public OnlineSubsystemDrift(TargetInfo Target)
-	{
+	public OnlineSubsystemDrift(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    {
 		bFasterWithoutUnity = true;
 		PCHUsage = PCHUsageMode.NoSharedPCHs;
 		

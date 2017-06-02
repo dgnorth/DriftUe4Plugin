@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class RapidJson : ModuleRules
 {
-    public RapidJson(TargetInfo Target)
+    public RapidJson(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         bFasterWithoutUnity = true;
         PCHUsage = PCHUsageMode.NoSharedPCHs;

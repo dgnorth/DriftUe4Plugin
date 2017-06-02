@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class Drift : ModuleRules
 {
-    public Drift(TargetInfo Target)
+    public Drift(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         bFasterWithoutUnity = true;
         PCHUsage = PCHUsageMode.NoSharedPCHs;

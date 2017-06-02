@@ -4,7 +4,7 @@ namespace UnrealBuildTool.Rules
 {
     public class DriftEditor : ModuleRules
     {
-        public DriftEditor(TargetInfo Target)
+        public DriftEditor(ReadOnlyTargetRules TargetRules) : base(TargetRules)
         {
             PrivateDependencyModuleNames.AddRange(
                 new string[]
