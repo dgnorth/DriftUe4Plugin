@@ -2,8 +2,8 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "0.1",
-	"FriendlyName": "Drift Google",
-	"Description": "Integration with the Google network platform",
+	"FriendlyName": "Drift Google Play",
+	"Description": "Integration with the Google Play network platform",
 	"Category": "Other",
 	"CreatedBy": "Directive Games Limited",
 	"CreatedByURL": "",
@@ -12,11 +12,11 @@
 	"SupportURL": "",
 	"Modules": [
 		{
-			"Name": "DriftGoogle",
+			"Name": "DriftGooglePlay",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
             "WhitelistPlatforms": [
-                "Win64"
+              "Android"
             ]
 		}
 	],
@@ -25,6 +25,6 @@
 	"IsBetaVersion": true,
 	"Installed": false,
 	"WhitelistPlatforms": [
-		"Win64"
+    "Android"
 	]
 }

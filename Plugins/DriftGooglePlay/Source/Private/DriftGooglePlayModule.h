@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include "DriftGoogleAuthProviderFactory.h"
+#include "DriftGooglePlayAuthProviderFactory.h"
 
 #include "ModuleManager.h"
 
 
-class FDriftGoogleModule : public IModuleInterface
+class FDriftGooglePlayModule : public IModuleInterface
 {
 public:
-	FDriftGoogleModule();
+	FDriftGooglePlayModule();
     
     bool IsGameModule() const override
     {
@@ -21,5 +21,5 @@ public:
     void ShutdownModule() override;
 
 private:
-	FDriftGoogleAuthProviderFactory providerFactory;
+	FDriftGooglePlayAuthProviderFactory providerFactory;
 };

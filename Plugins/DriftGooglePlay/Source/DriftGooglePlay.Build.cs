@@ -3,23 +3,23 @@
 using UnrealBuildTool;
 using System.IO;
 
-public class DriftGoogle : ModuleRules
+public class DriftGooglePlay : ModuleRules
 {
-	public DriftGoogle(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+	public DriftGooglePlay(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
 		bEnableShadowVariableWarnings = false;
 		PCHUsage = PCHUsageMode.NoSharedPCHs;
 
         PublicIncludePaths.AddRange(
 			new string[] {
-				"DriftGoogle/Public",		
+				"DriftGooglePlay/Public",		
 			}
 			);
 				
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"DriftGoogle/Private",
+				"DriftGooglePlay/Private",
 			}
 			);
 
@@ -36,9 +36,6 @@ public class DriftGoogle : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
-                "HTTP",
-                "Json",
-                "JsonUtilities",
                 "OnlineSubsystem",
                 "OnlineSubsystemUtils",
                 "Drift",

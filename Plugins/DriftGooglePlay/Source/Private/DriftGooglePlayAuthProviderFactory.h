@@ -5,7 +5,7 @@
 #include "IDriftAuthProviderFactory.h"
 
 
-class FDriftGoogleAuthProviderFactory : public IDriftAuthProviderFactory
+class FDriftGooglePlayAuthProviderFactory : public IDriftAuthProviderFactory
 {
     FName GetAuthProviderName() const override;
     TUniquePtr<IDriftAuthProvider> GetAuthProvider() override;

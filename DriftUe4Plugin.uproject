@@ -20,7 +20,7 @@
 		},
 		{
 			"Name": "OnlineSubsystemGooglePlay",
-			"Enabled": false
+			"Enabled": true
 		},
 		{
 			"Name": "OnlineSubsystemIOS",
@@ -35,11 +35,7 @@
 			"Enabled": true
 		},
 		{
-			"Name": "OnlineSubsystemGoogle",
-			"Enabled": true
-		},
-		{
-			"Name": "DriftGoogle",
+			"Name": "DriftGooglePlay",
 			"Enabled": true
 		}
 	]

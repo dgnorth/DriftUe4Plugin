@@ -1,28 +1,28 @@
 
-#include "DriftGooglePCH.h"
+#include "DriftGooglePlayPCH.h"
 
-#include "DriftGoogleModule.h"
+#include "DriftGooglePlayModule.h"
 
 #include "IPluginManager.h"
 #include "Features/IModularFeatures.h"
 
 
-IMPLEMENT_MODULE(FDriftGoogleModule, DriftGoogle)
+IMPLEMENT_MODULE(FDriftGooglePlayModule, DriftGooglePlay)
 
 
-FDriftGoogleModule::FDriftGoogleModule()
+FDriftGooglePlayModule::FDriftGooglePlayModule()
 {
 }
 
 
-void FDriftGoogleModule::StartupModule()
+void FDriftGooglePlayModule::StartupModule()
 {
     FModuleManager::Get().LoadModuleChecked("Drift");
     IModularFeatures::Get().RegisterModularFeature(TEXT("DriftAuthProviderFactory"), &providerFactory);
 }
 
 
-void FDriftGoogleModule::ShutdownModule()
+void FDriftGooglePlayModule::ShutdownModule()
 {
     IModularFeatures::Get().UnregisterModularFeature(TEXT("DriftAuthProviderFactory"), &providerFactory);
 }
