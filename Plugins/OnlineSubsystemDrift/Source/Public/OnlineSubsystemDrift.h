@@ -18,6 +18,10 @@ typedef TSharedPtr<class FOnlineAchievementsDrift, ESPMode::ThreadSafe> FOnlineA
 
 class IDriftAPI;
 
+#ifndef DRIFT_SUBSYSTEM
+#define DRIFT_SUBSYSTEM FName(TEXT("DRIFT"))
+#endif
+
 /**
  *  OnlineSubsystemDrift - Implementation of the online subsystem for Drift services
  */
@@ -77,7 +81,7 @@ public:
 PACKAGE_SCOPE:
 
     FOnlineSubsystemDrift(FName InInstanceName) :
-        FOnlineSubsystemImpl(InInstanceName),
+        FOnlineSubsystemImpl(DRIFT_SUBSYSTEM, InInstanceName),
         SessionInterface(nullptr),
         VoiceInterface(nullptr),
         bVoiceInterfaceInitialized(false),
