@@ -19,6 +19,9 @@ typedef rapidjson::Writer<JsonStringBuffer, rapidjson::UTF16<>, rapidjson::UTF16
 class JsonArchive;
 
 
+DEFINE_LOG_CATEGORY_STATIC(LogDriftJson, Log, All);
+
+
 class RAPIDJSON_API SerializationContext
 {
 public:
@@ -179,6 +182,11 @@ public:
                     {
                         cValue.Add(MoveTemp(elem));
                     }
+                    else
+                    {
+                        UE_LOG(LogDriftJson, Warning, TEXT("Failed to parse array entry: %s"), *ToString(element));
+                        return false;
+                    }
                 }
                 success = true;
             }
@@ -283,6 +291,10 @@ public:
         {
             JsonValue& v = parent[propName];
             success = SerializeObject(v, cValue);
+            if (!success)
+            {
+                UE_LOG(LogDriftJson, Warning, TEXT("Failed to serialize property: %s from: %s"), propName, *ToString(parent));
+            }
         }
         else
         {
