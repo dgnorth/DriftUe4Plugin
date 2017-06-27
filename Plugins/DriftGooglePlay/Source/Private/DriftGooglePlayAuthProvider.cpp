@@ -37,7 +37,16 @@ void FDriftGooglePlayAuthProvider::InitCredentials(InitCredentialsCallback callb
         else
         {
             loginCompleteDelegateHandle = identityInterface->AddOnLoginCompleteDelegate_Handle(localUserNum, FOnLoginCompleteDelegate::CreateSP(this, &FDriftGooglePlayAuthProvider::OnLoginComplete, callback));
-            identityInterface->AutoLogin(localUserNum);
+            auto externalUIinterface = Online::GetExternalUIInterface(nullptr, GOOGLEPLAY_SUBSYSTEM);
+            if (externalUIinterface.IsValid())
+            {
+                externalUIinterface->ShowLoginUI(localUserNum, true, false);
+            }
+            else
+            {
+                UE_LOG(LogDriftGooglePlay, Error, TEXT("Failed to get online external UI interface"));
+                callback(false);
+            }
         }
     }
     else
