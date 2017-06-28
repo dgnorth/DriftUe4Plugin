@@ -3,6 +3,7 @@
 
 #include "DriftGooglePlayAuthProvider.h"
 
+#include "Misc/SecureHash.h"
 #include "OnlineSubsystemTypes.h"
 #include "OnlineSubsystemUtils.h"
 
@@ -36,15 +37,23 @@ void FDriftGooglePlayAuthProvider::InitCredentials(InitCredentialsCallback callb
         }
         else
         {
-            loginCompleteDelegateHandle = identityInterface->AddOnLoginCompleteDelegate_Handle(localUserNum, FOnLoginCompleteDelegate::CreateSP(this, &FDriftGooglePlayAuthProvider::OnLoginComplete, callback));
+            loginCompleteDelegateHandle = identityInterface->AddOnLoginCompleteDelegate_Handle(localUserNum,
+                FOnLoginCompleteDelegate::CreateSP(this, &FDriftGooglePlayAuthProvider::OnLoginComplete, callback));
             auto externalUIinterface = Online::GetExternalUIInterface(nullptr, GOOGLEPLAY_SUBSYSTEM);
             if (externalUIinterface.IsValid())
             {
-                externalUIinterface->ShowLoginUI(localUserNum, true, false);
+                if (!externalUIinterface->ShowLoginUI(localUserNum, true, false,
+                    FOnLoginUIClosedDelegate::CreateSP(this, &FDriftGooglePlayAuthProvider::OnLoginUIClosed, callback)))
+                {
+                    UE_LOG(LogDriftGooglePlay, Error, TEXT("Failed to show external login UI"));
+
+                    callback(false);
+                }
             }
             else
             {
                 UE_LOG(LogDriftGooglePlay, Error, TEXT("Failed to get online external UI interface"));
+
                 callback(false);
             }
         }
@@ -52,13 +61,14 @@ void FDriftGooglePlayAuthProvider::InitCredentials(InitCredentialsCallback callb
     else
     {
         UE_LOG(LogDriftGooglePlay, Error, TEXT("Failed to get online user identity interface"));
+
         callback(false);
     }
 }
 
 
 void FDriftGooglePlayAuthProvider::GetFriends(GetFriendsCallback callback)
-{
+{/*
     auto friendsInterface = Online::GetFriendsInterface(nullptr, GOOGLEPLAY_SUBSYSTEM);
     if (friendsInterface.IsValid())
     {
@@ -96,16 +106,21 @@ void FDriftGooglePlayAuthProvider::GetFriends(GetFriendsCallback callback)
     else
     {
         UE_LOG(LogDriftGooglePlay, Warning, TEXT("Failed to get online friends interface"));
-    }
+    }*/
     callback(false, TArray<TSharedRef<FOnlineFriend>>());
 }
 
 
 void FDriftGooglePlayAuthProvider::FillProviderDetails(DetailsAppender appender) const
-{/*
-    appender(TEXT("steam_id"), steamID);
-    appender(TEXT("ticket"), token);
-    appender(TEXT("appid"), FString::Printf(TEXT("%d"), appID));*/
+{
+    static const FString salt = TEXT("b3e9f581-ce1a-442a-80b6-9689d081d9e3");
+
+    auto username = FString::Printf(TEXT("%s"), *googleID);
+
+    appender(TEXT("provisional"), TEXT("true"));
+    appender(TEXT("username"), username);
+    // This is temporary until something useful is exposed from the SDK
+    appender(TEXT("password"), *FMD5::HashAnsiString(*(username + salt)));
 }
 
 
@@ -116,13 +131,17 @@ FString FDriftGooglePlayAuthProvider::GetNickname()
     {
         return identityInterface->GetPlayerNickname(0);
     }
+    else
+    {
+        UE_LOG(LogDriftGooglePlay, Log, TEXT("Can't get nickname for player when not logged in"));
+    }
     return TEXT("");
 }
 
 
 FString FDriftGooglePlayAuthProvider::ToString() const
 {
-    return L""; // FString::Printf(TEXT("Google ID: id=%s, appid=%d"), *steamID, appID);
+    return FString::Printf(TEXT("Google ID: id=%s"), *googleID);
 }
 
 
@@ -147,6 +166,7 @@ void FDriftGooglePlayAuthProvider::OnLoginComplete(int32 localPlayerNum, bool su
                 if (id.IsValid())
                 {
                     googleID = id->ToString();
+                    authToken = identityInterface->GetAuthToken(localPlayerNum);
                     callback(true);
                     return;
                 }
@@ -171,4 +191,18 @@ void FDriftGooglePlayAuthProvider::OnLoginComplete(int32 localPlayerNum, bool su
     }
 
     callback(false);
+}
+
+
+void FDriftGooglePlayAuthProvider::OnLoginUIClosed(TSharedPtr<const FUniqueNetId> UniqueId, int LocalPlayerNum, InitCredentialsCallback callback)
+{
+    bool success = UniqueId.IsValid();
+    if (success)
+    {
+        OnLoginComplete(LocalPlayerNum, success, *UniqueId, FString(TEXT("")), callback);
+    }
+    else
+    {
+        OnLoginComplete(LocalPlayerNum, success, FUniqueNetIdString(TEXT("")), FString(TEXT("")), callback);
+    }
 }
