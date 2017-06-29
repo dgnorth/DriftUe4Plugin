@@ -15,10 +15,6 @@
 	],
 	"Plugins": [
 		{
-			"Name": "Drift",
-			"Enabled": true
-		},
-		{
 			"Name": "OnlineSubsystemDrift",
 			"Enabled": true
 		},
