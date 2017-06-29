@@ -37,7 +37,7 @@ void FDriftOculusAuthProvider::InitCredentials(InitCredentialsCallback callback)
         const auto localUserNum = 0;
 
         if (identityInterface->GetLoginStatus(localUserNum) == ELoginStatus::LoggedIn)
-        {            
+        {
             auto id = identityInterface->GetUniquePlayerId(localUserNum);
             if (id.IsValid())
             {

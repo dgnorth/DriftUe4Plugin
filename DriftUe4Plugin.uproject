@@ -19,8 +19,16 @@
 			"Enabled": true
 		},
 		{
+			"Name": "OnlineSubsystemDrift",
+			"Enabled": true
+		},
+		{
+			"Name": "DriftGooglePlay",
+			"Enabled": true
+		},
+		{
 			"Name": "OnlineSubsystemGooglePlay",
-			"Enabled": false
+			"Enabled": true
 		},
 		{
 			"Name": "OnlineSubsystemIOS",
@@ -28,11 +36,11 @@
 		},
 		{
 			"Name": "OnlineSubsystemOculus",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "OnlineSubsystemSteam",
-			"Enabled": true
+			"Enabled": false
 		}
 	]
 }

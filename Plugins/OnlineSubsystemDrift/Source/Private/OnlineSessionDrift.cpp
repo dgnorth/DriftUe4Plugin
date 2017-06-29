@@ -740,7 +740,7 @@ bool FOnlineSessionDrift::JoinSession(const FUniqueNetId& PlayerId, FName Sessio
 bool FOnlineSessionDrift::FindFriendSession(int32 LocalUserNum, const FUniqueNetId& Friend)
 {
     // this function has to exist due to interface definition, but it does not have a meaningful implementation in Drift subsystem
-    FOnlineSessionSearchResult EmptySearchResult;
+    TArray<FOnlineSessionSearchResult> EmptySearchResult;
     TriggerOnFindFriendSessionCompleteDelegates(LocalUserNum, false, EmptySearchResult);
     return false;
 };
@@ -748,10 +748,20 @@ bool FOnlineSessionDrift::FindFriendSession(int32 LocalUserNum, const FUniqueNet
 bool FOnlineSessionDrift::FindFriendSession(const FUniqueNetId& LocalUserId, const FUniqueNetId& Friend)
 {
     // this function has to exist due to interface definition, but it does not have a meaningful implementation in Drift subsystem
-    FOnlineSessionSearchResult EmptySearchResult;
+    TArray<FOnlineSessionSearchResult> EmptySearchResult;
     TriggerOnFindFriendSessionCompleteDelegates(0, false, EmptySearchResult);
     return false;
 }
+
+
+bool FOnlineSessionDrift::FindFriendSession(const FUniqueNetId & LocalUserId, const TArray<TSharedRef<const FUniqueNetId>>& FriendList)
+{
+    // this function has to exist due to interface definition, but it does not have a meaningful implementation in Drift subsystem
+    TArray<FOnlineSessionSearchResult> EmptySearchResult;
+    TriggerOnFindFriendSessionCompleteDelegates(0, false, EmptySearchResult);
+    return false;
+}
+
 
 bool FOnlineSessionDrift::SendSessionInviteToFriend(int32 LocalUserNum, FName SessionName, const FUniqueNetId& Friend)
 {
@@ -798,7 +808,7 @@ static bool GetConnectStringFromSessionInfo(TSharedPtr<FOnlineSessionInfoDrift>&
     return bSuccess;
 }
 
-bool FOnlineSessionDrift::GetResolvedConnectString(FName SessionName, FString& ConnectInfo)
+bool FOnlineSessionDrift::GetResolvedConnectString(FName SessionName, FString& ConnectInfo, FName PortType)
 {
     bool bSuccess = false;
     // Find the session
