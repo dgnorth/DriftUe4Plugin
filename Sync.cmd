@@ -17,6 +17,6 @@ if "%2" == "" (
 	shift
 	shift
 )
-robocopy /mir /l %source%\Plugins %dest%\Plugins -xd Binaries -xd Resources -xd Intermediate
+robocopy /mir /l %source%\Plugins\Drift %dest%\Plugins\Drift -xd Binaries -xd Resources -xd Intermediate
 robocopy /mir /l %source%\Source\Drift %dest%\Source\Drift
 popd

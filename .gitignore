@@ -13,4 +13,4 @@ Saved/
 .vs/
 
 # Directive Games
-Plugins/NoRedist/
+Plugins/**/NoRedist/
