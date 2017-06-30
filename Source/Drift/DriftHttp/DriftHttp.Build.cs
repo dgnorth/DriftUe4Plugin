@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class Drift : ModuleRules
+public class DriftHttp : ModuleRules
 {
-    public Drift(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    public DriftHttp(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         bFasterWithoutUnity = true;
         PCHUsage = PCHUsageMode.NoSharedPCHs;
@@ -12,8 +12,6 @@ public class Drift : ModuleRules
         
         PublicIncludePaths.AddRange(
             new string[] {
-                "Drift/Public"
-                
                 // ... add public include paths required here ...
             }
             );
@@ -21,8 +19,8 @@ public class Drift : ModuleRules
         
         PrivateIncludePaths.AddRange(
             new string[] {
-                "Drift/Private",
                 // ... add other private include paths required here ...
+                "Drift/DriftHttp/Public",
             }
             );
             
@@ -31,7 +29,6 @@ public class Drift : ModuleRules
             new string[]
             {
                 "Core",
-                "CoreUObject",
                 // ... add other public dependencies that you statically link with here ...
             }
             );
@@ -42,24 +39,11 @@ public class Drift : ModuleRules
             {
                 // ... add private dependencies that you statically link with here ...    
                 "Engine",
-                "Slate",
-                "SlateCore",
                 "HTTP",
-                "Sockets",
-                "OnlineSubsystem",
-                "OnlineSubsystemUtils",
-                "DriftHttp",
                 "RapidJson",
                 "ErrorReporter",
                 "Json",
             }
             );
-        
-        
-        if (Target.Platform == UnrealTargetPlatform.IOS || Target.Platform == UnrealTargetPlatform.Mac)
-        {
-            // Needed for the keychain access
-            PublicAdditionalFrameworks.Add(new UEBuildFramework("Security"));
-        }
     }
 }

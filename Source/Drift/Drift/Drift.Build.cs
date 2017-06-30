@@ -2,16 +2,18 @@
 
 using UnrealBuildTool;
 
-public class DriftHttp : ModuleRules
+public class Drift : ModuleRules
 {
-    public DriftHttp(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    public Drift(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         bFasterWithoutUnity = true;
-        PCHUsage = PCHUsageMode.NoSharedPCHs;
+        //PCHUsage = PCHUsageMode.NoSharedPCHs;
 
         
         PublicIncludePaths.AddRange(
             new string[] {
+                "Drift/Drift/Public"
+                
                 // ... add public include paths required here ...
             }
             );
@@ -19,8 +21,9 @@ public class DriftHttp : ModuleRules
         
         PrivateIncludePaths.AddRange(
             new string[] {
+                "Drift/Drift/Private",
+
                 // ... add other private include paths required here ...
-                "DriftHttp/Public",
             }
             );
             
@@ -29,6 +32,7 @@ public class DriftHttp : ModuleRules
             new string[]
             {
                 "Core",
+                "CoreUObject",
                 // ... add other public dependencies that you statically link with here ...
             }
             );
@@ -39,11 +43,24 @@ public class DriftHttp : ModuleRules
             {
                 // ... add private dependencies that you statically link with here ...    
                 "Engine",
+                "Slate",
+                "SlateCore",
                 "HTTP",
+                "Sockets",
+                "OnlineSubsystem",
+                "OnlineSubsystemUtils",
+                "DriftHttp",
                 "RapidJson",
                 "ErrorReporter",
                 "Json",
             }
             );
+        
+        
+        if (Target.Platform == UnrealTargetPlatform.IOS || Target.Platform == UnrealTargetPlatform.Mac)
+        {
+            // Needed for the keychain access
+            PublicAdditionalFrameworks.Add(new UEBuildFramework("Security"));
+        }
     }
 }
