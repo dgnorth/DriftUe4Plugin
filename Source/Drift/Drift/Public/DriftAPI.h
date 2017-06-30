@@ -376,6 +376,11 @@ public:
     virtual FString GetAuthProviderName() const = 0;
 
     /**
+     * Bind the identity from a secondary auth provider to the currently logged in user.
+     */
+    virtual void AddPlayerIdentity(const FString& authProvider) = 0;
+
+    /**
      * Return a list of active matches, available for joining
      */
     virtual void GetActiveMatches(const TSharedRef<FMatchesSearch>& search) = 0;

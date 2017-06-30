@@ -68,6 +68,7 @@ public:
     int32 GetPlayerID() override;
     void SetPlayerName(const FString& name) override;
     FString GetAuthProviderName() const override;
+    void AddPlayerIdentity(const FString& authProvider) override;
 
     void GetActiveMatches(const TSharedRef<FMatchesSearch>& search) override;
     void JoinMatchQueue(const FDriftJoinedMatchQueueDelegate& delegate) override;
@@ -149,7 +150,11 @@ private:
     void GetPlayerInfo();
     
     void AuthenticatePlayer(IDriftAuthProvider* provider);
-    
+    void AddPlayerIdentity(IDriftAuthProvider* provider);
+    void BindUserIdentity();
+    void AssociateNewIdentityWithCurrentUser();
+    void AssociateCurrentUserWithSecondaryIdentity(const FDriftUserInfoResponse& targetUser);
+
     void InitServerRootInfo();
     void InitServerAuthentication();
     void InitServerRegistration();
@@ -256,6 +261,8 @@ private:
 
     void BroadcastConnectionStateChange(DriftSessionState internalState);
 
+    TUniquePtr<IDriftAuthProvider> MakeAuthProvider(const FString& credentialType);
+
 private:
     // TODO: deprecate or consolidate with other properties
     struct CLI
@@ -277,7 +284,8 @@ private:
 
     TSharedPtr<JsonRequestManager> rootRequestManager_;
     TSharedPtr<JsonRequestManager> authenticatedRequestManager;
-    
+    TSharedPtr<JsonRequestManager> secondaryIdentityRequestManager_;
+
     FDriftEndpointsResponse driftEndpoints;
 
     FClientRegistrationResponse driftClient;

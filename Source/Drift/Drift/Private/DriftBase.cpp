@@ -752,6 +752,21 @@ void FDriftBase::BroadcastConnectionStateChange(DriftSessionState internalState)
 }
 
 
+TUniquePtr<IDriftAuthProvider> FDriftBase::MakeAuthProvider(const FString& credentialType)
+{
+    auto factories = IModularFeatures::Get().GetModularFeatureImplementations<IDriftAuthProviderFactory>(TEXT("DriftAuthProviderFactory"));
+    for (const auto factory : factories)
+    {
+        if (credentialType.Compare(factory->GetAuthProviderName().ToString(), ESearchCase::IgnoreCase) == 0)
+        {
+            return factory->GetAuthProvider();
+        }
+    }
+
+    return nullptr;
+}
+
+
 void FDriftBase::GetActiveMatches(const TSharedRef<FMatchesSearch>& search)
 {
     FString matches_url = driftEndpoints.active_matches;
@@ -1650,15 +1665,7 @@ void FDriftBase::InitAuthentication(const FString& credentialType)
     }
     else
     {
-        auto factories = IModularFeatures::Get().GetModularFeatureImplementations<IDriftAuthProviderFactory>(TEXT("DriftAuthProviderFactory"));
-        for (const auto factory : factories)
-        {
-            if (credentialType.Compare(factory->GetAuthProviderName().ToString(), ESearchCase::IgnoreCase) == 0)
-            {
-                authProvider = MakeShareable(factory->GetAuthProvider().Release());
-                break;
-            }
-        }
+        authProvider = MakeShareable(MakeAuthProvider(credentialType).Release());
     }
 
     if (!authProvider.IsValid())
@@ -1705,6 +1712,7 @@ void FDriftBase::AuthenticatePlayer(IDriftAuthProvider* provider)
 {
     FUserPassAuthenticationPayload payload{};
     payload.provider = provider->GetProviderName();
+    payload.automatic_account_creation = true;
     provider->FillProviderDetails([&payload](const FString& key, const FString& value) {
         JsonArchive::AddMember(payload.provider_details, *key, *value);
     });
@@ -1933,6 +1941,174 @@ void FDriftBase::SetPlayerName(const FString& name)
 FString FDriftBase::GetAuthProviderName() const
 {
     return authProvider.IsValid() ? authProvider->GetProviderName() : TEXT("");
+}
+
+
+void FDriftBase::AddPlayerIdentity(const FString& credentialType)
+{
+    if (credentialType.Compare(TEXT("uuid"), ESearchCase::IgnoreCase) == 0)
+    {
+        UE_LOG(LogDriftBase, Error, TEXT("UUID may not be used as a secondary player identity"));
+
+        return;
+    }
+
+    if (state_ >= DriftSessionState::Connecting)
+    {
+        DRIFT_LOG(Base, Error, TEXT("You cannot add a new player identity without connecting first"));
+
+        return;
+    }
+
+    if (credentialType.Compare(authProvider->GetProviderName(), ESearchCase::IgnoreCase) == 0)
+    {
+        UE_LOG(LogDriftBase, Error, TEXT("Secondary player identity cannot be the same type as the current one"));
+
+        return;
+    }
+
+    TSharedPtr<IDriftAuthProvider> provider = MakeShareable(MakeAuthProvider(credentialType).Release());
+    if (!provider.IsValid())
+    {
+        DRIFT_LOG(Base, Error, TEXT("Failed to find an auth provider for credential type %s"), *credentialType);
+
+        return;
+    }
+
+    provider->InitCredentials([this, provider](bool credentialSuccess)
+    {
+        if (credentialSuccess)
+        {
+            AddPlayerIdentity(provider.Get());
+        }
+        else
+        {
+            DRIFT_LOG(Base, Warning, TEXT("Failed to aquire credentials from %s"), *provider->GetProviderName());
+
+            // TODO: Broadcast error
+        }
+    });
+}
+
+
+void FDriftBase::AddPlayerIdentity(IDriftAuthProvider* provider)
+{
+    FUserPassAuthenticationPayload payload{};
+    payload.provider = provider->GetProviderName();
+    payload.automatic_account_creation = false;
+    provider->FillProviderDetails([&payload](const FString& key, const FString& value) {
+        JsonArchive::AddMember(payload.provider_details, *key, *value);
+    });
+
+    DRIFT_LOG(Base, Verbose, TEXT("Adding player identity: %s"), *provider->ToString());
+
+    auto request = GetRootRequestManager()->Post(driftEndpoints.auth, payload, HttpStatusCodes::Ok);
+    request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
+    {
+        FString jti;
+        auto member = doc.FindMember(TEXT("jti"));
+        if (member != doc.MemberEnd() && member->value.IsString())
+        {
+            jti = member->value.GetString();
+        }
+        if (jti.IsEmpty())
+        {
+            context.error = L"Identity 'jti' missing.";
+            return;
+        }
+
+        DRIFT_LOG(Base, Verbose, TEXT("Got JTI %s"), *jti);
+
+        TSharedRef<JsonRequestManager> manager = MakeShareable(new JTIRequestManager(jti));
+        manager->DefaultErrorHandler.BindRaw(this, &FDriftBase::DefaultErrorHandler);
+        manager->SetApiKey(GetApiKeyHeader());
+        secondaryIdentityRequestManager_ = manager;
+
+        BindUserIdentity();
+    });
+    request->OnError.BindLambda([this](ResponseContext& context)
+    {
+        context.errorHandled = true;
+        if (context.error.IsEmpty() && context.response.IsValid())
+        {
+            GenericRequestErrorResponse response;
+            if (JsonUtils::ParseResponse(context.response, response))
+            {
+                context.error = response.GetErrorDescription();
+            }
+        }
+        // TODO: Broadcast error
+    });
+    request->Dispatch();
+}
+
+
+void FDriftBase::BindUserIdentity()
+{
+    auto request = secondaryIdentityRequestManager_->Get(driftEndpoints.root);
+    request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
+    {
+        if (doc.HasMember(TEXT("current_user")))
+        {
+            FDriftUserInfoResponse userInfo;
+            if (JsonArchive::LoadObject(doc[TEXT("current_user")], userInfo))
+            {
+                if (userInfo.user_id == 0)
+                {
+                    AssociateNewIdentityWithCurrentUser();
+                }
+                else if (userInfo.user_id != driftClient.user_id)
+                {
+                    AssociateCurrentUserWithSecondaryIdentity(userInfo);
+                }
+            }
+        }
+    });
+    request->OnError.BindLambda([](ResponseContext& context)
+    {
+        context.errorHandled = true;
+        // TODO: Broadcast error
+    });
+    request->Dispatch();
+}
+
+
+void FDriftBase::AssociateNewIdentityWithCurrentUser()
+{
+    FDriftUserIdentityPayload payload{};
+    payload.link_with_user_jti = driftClient.jti;
+    payload.link_with_user_id = driftClient.user_id;
+    auto request = secondaryIdentityRequestManager_->Post(driftEndpoints.user_identities, payload);
+    request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
+    {
+        // TODO: Nothing?
+    });
+    request->OnError.BindLambda([](ResponseContext& context)
+    {
+        // Could happen if the user already has an association with a different id from the same provider
+        context.errorHandled = true;
+        // TODO: Broadcast error
+    });
+    request->Dispatch();
+}
+
+
+void FDriftBase::AssociateCurrentUserWithSecondaryIdentity(const FDriftUserInfoResponse& targetUser)
+{
+    FDriftUserIdentityPayload payload{};
+    payload.link_with_user_jti = targetUser.jti;
+    payload.link_with_user_id = targetUser.user_id;
+    auto request = GetGameRequestManager()->Post(driftEndpoints.user_identities, payload);
+    request->OnResponse.BindLambda([this](ResponseContext& context, JsonDocument& doc)
+    {
+        // TODO: Switch player
+    });
+    request->OnError.BindLambda([](ResponseContext& context)
+    {
+        context.errorHandled = true;
+        // TODO: Broadcast error
+    });
+    request->Dispatch();
 }
 
 

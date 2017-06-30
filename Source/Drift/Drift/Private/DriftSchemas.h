@@ -155,6 +155,14 @@ struct FDriftPlayerResponse
 };
 
 
+struct FDriftUserIdentityPayload
+{
+    FString link_with_user_jti;
+    int32 link_with_user_id = 0;
+
+    bool Serialize(SerializationContext& context);
+};
+
 struct FDriftPlayerUpdateResponse
 {
     bool is_online = false;
