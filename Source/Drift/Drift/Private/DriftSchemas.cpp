@@ -429,3 +429,10 @@ bool FMatchInfo::Serialize(class SerializationContext &context)
         && SERIALIZE_PROPERTY(context, players)
         && SERIALIZE_PROPERTY(context, url);
 }
+
+
+bool FDriftUserIdentityPayload::Serialize(SerializationContext & context)
+{
+    return SERIALIZE_PROPERTY(context, link_with_user_jti)
+        && SERIALIZE_PROPERTY(context, link_with_user_id);
+}

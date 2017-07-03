@@ -68,6 +68,7 @@ public:
     int32 GetPlayerID() override;
     void SetPlayerName(const FString& name) override;
     FString GetAuthProviderName() const override;
+    void AddPlayerIdentity(const FString& authProvider, const FDriftAddPlayerIdentityProgressDelegate& progressDelegate) override;
 
     void GetActiveMatches(const TSharedRef<FMatchesSearch>& search) override;
     void JoinMatchQueue(const FDriftJoinedMatchQueueDelegate& delegate) override;
@@ -149,7 +150,26 @@ private:
     void GetPlayerInfo();
     
     void AuthenticatePlayer(IDriftAuthProvider* provider);
-    
+
+    void AddPlayerIdentity(IDriftAuthProvider* provider, const FDriftAddPlayerIdentityProgressDelegate& progressDelegate);
+    void BindUserIdentity(const FDriftAddPlayerIdentityProgressDelegate& progressDelegate);
+
+    /**
+     * Associate the new identity with the current user.
+     * This allows us to log in with either identity for this user in the future.
+     */
+    void AssociateNewIdentityWithCurrentUser(const FDriftAddPlayerIdentityProgressDelegate& progressDelegate);
+
+    /**
+     * Disassociate the current identity with its user, and associate it with the user tied to the new identity.
+     * The new identity must have a user or this will fail.
+     * Use this when recovering an account on a new or restored device where the current user has
+     * been created with temporary credentials.
+     * The previous user will no longer be associated with this identity and might not be recoverable unless there
+     * are additional identities tied to it.
+     */
+    void AssociateCurrentUserWithSecondaryIdentity(const FDriftUserInfoResponse& targetUser, const FDriftAddPlayerIdentityProgressDelegate& progressDelegate);
+
     void InitServerRootInfo();
     void InitServerAuthentication();
     void InitServerRegistration();
@@ -256,6 +276,8 @@ private:
 
     void BroadcastConnectionStateChange(DriftSessionState internalState);
 
+    TUniquePtr<IDriftAuthProvider> MakeAuthProvider(const FString& credentialType);
+
 private:
     // TODO: deprecate or consolidate with other properties
     struct CLI
@@ -277,7 +299,8 @@ private:
 
     TSharedPtr<JsonRequestManager> rootRequestManager_;
     TSharedPtr<JsonRequestManager> authenticatedRequestManager;
-    
+    TSharedPtr<JsonRequestManager> secondaryIdentityRequestManager_;
+
     FDriftEndpointsResponse driftEndpoints;
 
     FClientRegistrationResponse driftClient;
