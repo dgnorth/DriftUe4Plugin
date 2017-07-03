@@ -99,6 +99,42 @@ void UDriftDemoGameInstance::CancelMatchMaking()
 }
 
 
+void UDriftDemoGameInstance::LinkIdentity()
+{
+    if (auto drift = FDriftWorldHelper(GetWorld()).GetInstance())
+    {
+        drift->AddPlayerIdentity(TEXT("steam"), FDriftAddPlayerIdentityProgressDelegate::CreateLambda([](EAddPlayerIdentityResult result, FDriftPlayerIdentityContinuationDelegate delegate)
+        {
+            switch (result)
+            {
+            case EAddPlayerIdentityResult::Success:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association complete"));
+                break;
+            case EAddPlayerIdentityResult::Error_FailedToAquireCredentials:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association failed to get credentials"));
+                break;
+            case EAddPlayerIdentityResult::Error_FailedToAuthenticate:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association failed to log in"));
+                break;
+            case EAddPlayerIdentityResult::Error_FailedToBindNewIdentity:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association failed to bind new identity"));
+                break;
+            case EAddPlayerIdentityResult::Error_UserAlreadyBoundToSameIdentityType:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association failed to bind to same identity type twice"));
+                break;
+            case EAddPlayerIdentityResult::Progress_IdentityAssociatedWithOtherUser:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association has other identity"));
+                delegate.Execute(EPlayerIdentityOverrideOption::DoNotOverrideExistingUserAssociation);
+                break;
+            case EAddPlayerIdentityResult::Error_Failed:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association failed for an unknown reason"));
+                break;
+            }
+        }));
+    }
+}
+
+
 void UDriftDemoGameInstance::HandleConnectionStateChanged(EDriftConnectionState state)
 {
     UE_LOG(LogDriftDemo, Log, TEXT("Connection State: %d"), (uint8)state);

@@ -31,6 +31,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Drift|Matches")
     void CancelMatchMaking();
 
+    UFUNCTION(BlueprintCallable, Category = "Drift|Identitites")
+    void LinkIdentity();
+
 private:
     void HandleConnectionStateChanged(EDriftConnectionState state);
     void HandleLoginComplete(int32 LocalUserNum, bool success, const FUniqueNetId& UniqueId, const FString& Error);
