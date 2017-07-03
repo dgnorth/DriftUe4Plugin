@@ -302,6 +302,25 @@ enum class EDriftConnectionState : uint8
 };
 
 
+enum class EPlayerIdentityOverrideOption : uint8
+{
+    DoNotOverrideExistingUserAssociation,
+    AssignIdentityToNewUser
+};
+
+
+enum class EAddPlayerIdentityResult : uint8
+{
+    Success,
+    Progress_IdentityAssociatedWithOtherUser,
+    Error_FailedToAquireCredentials,
+    Error_FailedToAuthenticate,
+    Error_FailedToBindNewIdentity,
+    Error_UserAlreadyBoundToSameIdentityType,
+    Error_Failed
+};
+
+
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDriftPlayerAuthenticatedDelegate, bool, const FPlayerAuthenticatedInfo&);
 DECLARE_MULTICAST_DELEGATE_OneParam(FDriftConnectionStateChangedDelegate, EDriftConnectionState);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDriftStaticDataLoadedDelegate, bool, const FString&);
@@ -316,6 +335,9 @@ DECLARE_DELEGATE_TwoParams(FDriftLeaderboardLoadedDelegate, bool, const FString&
 DECLARE_DELEGATE_OneParam(FDriftFriendsListLoadedDelegate, bool);
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FDriftFriendPresenceChangedDelegate, int32, EDriftPresence);
+
+DECLARE_DELEGATE_OneParam(FDriftPlayerIdentityContinuationDelegate, EPlayerIdentityOverrideOption);
+DECLARE_DELEGATE_TwoParams(FDriftAddPlayerIdentityProgressDelegate, EAddPlayerIdentityResult, const FDriftPlayerIdentityContinuationDelegate&);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FDriftGameVersionMismatchDelegate, const FString&);
 
@@ -378,7 +400,7 @@ public:
     /**
      * Bind the identity from a secondary auth provider to the currently logged in user.
      */
-    virtual void AddPlayerIdentity(const FString& authProvider) = 0;
+    virtual void AddPlayerIdentity(const FString& authProvider, const FDriftAddPlayerIdentityProgressDelegate& progressDelegate) = 0;
 
     /**
      * Return a list of active matches, available for joining
