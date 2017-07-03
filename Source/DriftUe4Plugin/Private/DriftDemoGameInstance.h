@@ -32,7 +32,7 @@ public:
     void CancelMatchMaking();
 
     UFUNCTION(BlueprintCallable, Category = "Drift|Identitites")
-    void LinkIdentity();
+    void LinkIdentity(const FString& credentialsType);
 
 private:
     void HandleConnectionStateChanged(EDriftConnectionState state);

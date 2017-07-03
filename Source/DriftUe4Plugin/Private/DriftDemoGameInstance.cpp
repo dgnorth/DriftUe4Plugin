@@ -99,11 +99,14 @@ void UDriftDemoGameInstance::CancelMatchMaking()
 }
 
 
-void UDriftDemoGameInstance::LinkIdentity()
+void UDriftDemoGameInstance::LinkIdentity(const FString& credentialsType)
 {
     if (auto drift = FDriftWorldHelper(GetWorld()).GetInstance())
     {
-        drift->AddPlayerIdentity(TEXT("steam"), FDriftAddPlayerIdentityProgressDelegate::CreateLambda([](EAddPlayerIdentityResult result, FDriftPlayerIdentityContinuationDelegate delegate)
+        drift->AddPlayerIdentity(
+            credentialsType,
+            FDriftAddPlayerIdentityProgressDelegate::CreateLambda(
+                [](EAddPlayerIdentityResult result, FDriftPlayerIdentityContinuationDelegate delegate)
         {
             switch (result)
             {
@@ -124,10 +127,14 @@ void UDriftDemoGameInstance::LinkIdentity()
                 break;
             case EAddPlayerIdentityResult::Progress_IdentityAssociatedWithOtherUser:
                 UE_LOG(LogDriftDemo, Log, TEXT("Account association has other identity"));
+                // TODO: Let player chose to reassign the identity or not
                 delegate.Execute(EPlayerIdentityOverrideOption::DoNotOverrideExistingUserAssociation);
                 break;
             case EAddPlayerIdentityResult::Error_Failed:
                 UE_LOG(LogDriftDemo, Log, TEXT("Account association failed for an unknown reason"));
+                break;
+            default:
+                UE_LOG(LogDriftDemo, Log, TEXT("Account association failed with an unknown error code"));
                 break;
             }
         }));
