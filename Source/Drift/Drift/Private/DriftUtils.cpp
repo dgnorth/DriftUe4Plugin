@@ -31,7 +31,7 @@ const FName DriftModuleName = TEXT("Drift");
 
 
 FDriftWorldHelper::FDriftWorldHelper(UObject* worldContextObject)
-: world_{ GEngine->GetWorldFromContextObject(worldContextObject) }
+: world_{ GEngine->GetWorldFromContextObjectChecked(worldContextObject) }
 {
 }
 

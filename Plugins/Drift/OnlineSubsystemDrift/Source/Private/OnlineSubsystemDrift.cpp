@@ -130,9 +130,19 @@ IOnlineChatPtr FOnlineSubsystemDrift::GetChatInterface() const
     return nullptr;
 }
 
+IOnlineStatsPtr FOnlineSubsystemDrift::GetStatsInterface() const
+{
+	return nullptr;
+}
+
 IOnlineTurnBasedPtr FOnlineSubsystemDrift::GetTurnBasedInterface() const
 {
     return nullptr;
+}
+
+IOnlineTournamentPtr FOnlineSubsystemDrift::GetTournamentInterface() const
+{
+	return nullptr;
 }
 
 bool FOnlineSubsystemDrift::Tick(float DeltaTime)
@@ -244,7 +254,12 @@ bool FOnlineSubsystemDrift::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevic
     return false;
 }
 
-bool FOnlineSubsystemDrift::IsEnabled()
+FText FOnlineSubsystemDrift::GetOnlineServiceName() const
+{
+	return FOnlineSubsystemImpl::GetOnlineServiceName();
+}
+
+bool FOnlineSubsystemDrift::IsEnabled() const
 {
     return true;
 }

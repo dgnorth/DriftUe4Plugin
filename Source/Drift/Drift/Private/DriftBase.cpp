@@ -1231,7 +1231,7 @@ void FDriftBase::AddAnalyticsEvent(const FString& event_name, const TArray<FAnal
     auto event = MakeEvent(event_name);
     for (const auto& attribute : attributes)
     {
-        event->Add(attribute.AttrName, attribute.AttrValue);
+        event->Add(attribute.AttrName, attribute.ToString());
     }
     AddAnalyticsEvent(MoveTemp(event));
 }

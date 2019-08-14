@@ -115,6 +115,8 @@ public:
 
     virtual ~FOnlineSessionDrift() {}
 
+	virtual TSharedPtr<const FUniqueNetId> CreateSessionIdFromString(const FString& SessionIdStr) override;
+
     virtual FNamedOnlineSession* GetNamedSession(FName SessionName) override;
     virtual void RemoveNamedSession(FName SessionName) override;
     virtual EOnlineSessionState::Type GetSessionState(FName SessionName) const override;

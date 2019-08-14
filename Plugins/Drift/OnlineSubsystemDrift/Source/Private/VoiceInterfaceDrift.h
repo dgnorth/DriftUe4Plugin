@@ -71,6 +71,7 @@ PACKAGE_SCOPE:
 
 	// IOnlineVoice
 	virtual bool Init() override;
+	virtual IVoiceEnginePtr CreateVoiceEngine() override;
 	void ProcessMuteChangeNotification() override;
 
 	/**

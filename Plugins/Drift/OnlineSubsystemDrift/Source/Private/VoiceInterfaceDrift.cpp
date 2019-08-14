@@ -516,6 +516,11 @@ bool FOnlineVoiceDrift::UnmuteRemoteTalker(uint8 LocalUserNum, const FUniqueNetI
 	return Return == S_OK;
 }
 
+IVoiceEnginePtr FOnlineVoiceDrift::CreateVoiceEngine()
+{
+	return VoiceEngine;
+}
+
 void FOnlineVoiceDrift::ProcessMuteChangeNotification()
 {
 	// Nothing to update if there isn't an active session

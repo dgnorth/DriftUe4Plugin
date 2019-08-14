@@ -17,6 +17,11 @@ FDriftProvider::FDriftProvider()
 }
 
 
+FDriftProvider::~FDriftProvider()
+{
+}
+
+
 IDriftAPI* FDriftProvider::GetInstance(const FName& identifier)
 {
     FName keyName = identifier == NAME_None ? DefaultInstanceName : identifier;

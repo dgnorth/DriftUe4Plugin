@@ -7,7 +7,7 @@ public class RapidJson : ModuleRules
     public RapidJson(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
         bFasterWithoutUnity = true;
-        PCHUsage = PCHUsageMode.NoSharedPCHs;
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
         
         PublicIncludePaths.AddRange(
@@ -43,7 +43,7 @@ public class RapidJson : ModuleRules
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.PS4))
         {
-            Definitions.Add("RAPIDJSON_HAS_CXX11_RVALUE_REFS=1");
+            PublicDefinitions.Add("RAPIDJSON_HAS_CXX11_RVALUE_REFS=1");
         }
     }
 }

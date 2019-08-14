@@ -59,12 +59,16 @@ public:
     virtual IOnlineMessagePtr GetMessageInterface() const override;
     virtual IOnlinePresencePtr GetPresenceInterface() const override;
     virtual IOnlineChatPtr GetChatInterface() const override;
+	virtual IOnlineStatsPtr GetStatsInterface() const override;
     virtual IOnlineTurnBasedPtr GetTurnBasedInterface() const override;
+	virtual IOnlineTournamentPtr GetTournamentInterface() const override;
     
     virtual bool Init() override;
     virtual bool Shutdown() override;
     virtual FString GetAppId() const override;
     virtual bool Exec(class UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar) override;
+
+	virtual FText GetOnlineServiceName() const override;
 
     // FTickerObjectBase
     
@@ -76,23 +80,12 @@ public:
      * Is the Drift API available for use
      * @return true if Drift functionality is available, false otherwise
      */
-    bool IsEnabled();
+    bool IsEnabled() const;
 
 PACKAGE_SCOPE:
 
     FOnlineSubsystemDrift(FName InInstanceName) :
         FOnlineSubsystemImpl(DRIFT_SUBSYSTEM, InInstanceName),
-        SessionInterface(nullptr),
-        VoiceInterface(nullptr),
-        bVoiceInterfaceInitialized(false),
-        LeaderboardsInterface(nullptr),
-        IdentityInterface(nullptr),
-        AchievementsInterface(nullptr),
-        OnlineAsyncTaskThreadRunnable(nullptr),
-        OnlineAsyncTaskThread(nullptr)
-    {}
-
-    FOnlineSubsystemDrift() :
         SessionInterface(nullptr),
         VoiceInterface(nullptr),
         bVoiceInterfaceInitialized(false),

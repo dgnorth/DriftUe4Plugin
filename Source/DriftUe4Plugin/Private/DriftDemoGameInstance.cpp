@@ -67,7 +67,7 @@ void UDriftDemoGameInstance::StartMatchMaking()
     {
         sessionSearch = MakeShareable(new FOnlineSessionSearch{});
         TArray<TSharedRef<const FUniqueNetId>> localPlayers;
-        localPlayers.Add(GetLocalPlayerByIndex(0)->GetCachedUniqueNetId().ToSharedRef());
+        localPlayers.Add(TSharedPtr<FUniqueNetIdRepl>(GetLocalPlayerByIndex(0)->GetCachedUniqueNetId()).ToSharedRef());
         auto temp = sessionSearch.ToSharedRef();
         if (sessionInterface->StartMatchmaking(localPlayers, GameSessionName, FOnlineSessionSettings{}, temp))
         {

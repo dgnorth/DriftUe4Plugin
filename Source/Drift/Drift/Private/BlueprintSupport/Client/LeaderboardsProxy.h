@@ -13,7 +13,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FKaleoProxyLeaderboardLoadedDelegate, const TArray<FBlueprintLeaderboardEntry>&, entries);
 
 
-UCLASS()
+UCLASS(BlueprintType)
 class ULeaderboardsProxy : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()

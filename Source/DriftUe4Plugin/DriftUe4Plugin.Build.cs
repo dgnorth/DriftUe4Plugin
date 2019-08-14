@@ -6,6 +6,8 @@ public class DriftUe4Plugin : ModuleRules
 {
     public DriftUe4Plugin(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { "OnlineSubsystem", "OnlineSubsystemUtils", "Drift" });

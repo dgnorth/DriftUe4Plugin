@@ -1,7 +1,7 @@
 // Copyright 2016-2017 Directive Games Limited - All Rights Reserved.
 
-#include "OnlineSubsystemDriftPrivatePCH.h"
 #include "OnlineAsyncTaskManagerDrift.h"
+#include "OnlineSubsystemDriftPrivatePCH.h"
 #include "OnlineSubsystemDrift.h"
 
 void FOnlineAsyncTaskManagerDrift::OnlineTick()

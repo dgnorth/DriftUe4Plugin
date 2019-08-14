@@ -9,6 +9,13 @@
 #include "OnlineSubsystemDriftPackage.h"
 #include "Net/VoiceDataCommon.h"
 
+#ifndef S_OK
+#define S_OK 0
+#endif
+#ifndef E_FAIL
+#define E_FAIL 0x80004005
+#endif
+
 /**
  * Container for unprocessed voice data
  */
