@@ -67,7 +67,7 @@ void UDriftDemoGameInstance::StartMatchMaking()
     {
         sessionSearch = MakeShareable(new FOnlineSessionSearch{});
         TArray<TSharedRef<const FUniqueNetId>> localPlayers;
-        localPlayers.Add(TSharedPtr<FUniqueNetIdRepl>(GetLocalPlayerByIndex(0)->GetCachedUniqueNetId()).ToSharedRef());
+        localPlayers.Add(GetLocalPlayerByIndex(0)->GetCachedUniqueNetId().GetUniqueNetId().ToSharedRef());
         auto temp = sessionSearch.ToSharedRef();
         if (sessionInterface->StartMatchmaking(localPlayers, GameSessionName, FOnlineSessionSettings{}, temp))
         {
@@ -169,8 +169,8 @@ void UDriftDemoGameInstance::HandleLoginComplete(int32 LocalUserNum, bool succes
             {
                 if (auto playerState = playerController->PlayerState)
                 {
-                    localPlayer->SetCachedUniqueNetId(uniqueId);
-                    playerState->SetUniqueId(uniqueId);
+                    localPlayer->SetCachedUniqueNetId(uniqueId.GetUniqueNetId());
+                    playerState->SetUniqueId(uniqueId.GetUniqueNetId());
                 }
             }
         }

@@ -375,7 +375,7 @@ uint32 FVoiceEngineDrift::SubmitRemoteVoiceData(const FUniqueNetId& RemoteTalker
 			SerializeHelper = new FVoiceSerializeHelper(this);
 		}
 
-		QueuedData.AudioComponent = CreateVoiceAudioComponent(VOICE_SAMPLE_RATE);
+		QueuedData.AudioComponent = CreateVoiceAudioComponent(VOICE_SAMPLE_RATE, 1);
 		if (QueuedData.AudioComponent)
 		{
 			QueuedData.AudioComponent->OnAudioFinishedNative.AddRaw(this, &FVoiceEngineDrift::OnAudioFinished);
